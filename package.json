@@ -1,0 +1,23 @@
+{
+  "name": "prioritask",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Anitapeturs/prioritask.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Anitapeturs/prioritask/issues"
+  },
+  "homepage": "https://github.com/Anitapeturs/prioritask#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "node": "^21.6.1"
+  }
+}
