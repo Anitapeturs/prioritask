@@ -1,17 +1,36 @@
 import express from "express";
-const USER_API = express.Router();
+const USERS = express.Router();
 
 
-USER_API.get('/', (req, res, next) => {
+USERS.get('/', (req, res, next) => {
 
     res.status(200).json({
         message: 'handling GET requests to /user'
     })
 })
 
+USERS.post('/', (req, res, next) => {
 
-USER_API.get('/:id', (req, res, next) => {
+    res.status(200).json({
+        message: 'handling POST requests to /user'
+    })
+})
 
+USERS.get('/:id', (req, res, next) => {
+
+    const userid = req.params.id;
+
+    if(userid === 'special'){
+        res.status(200).json({
+            message: 'you discovered the special id:',
+            id: userid
+            
+        })
+    } else {
+        res.status(200).json({
+            message : 'you passed an id'
+        })
+    }
 
     // Tip: All the information you need to get the id part of the request can be found in the documentation 
     // https://expressjs.com/en/guide/routing.html (Route parameters)
@@ -21,7 +40,7 @@ USER_API.get('/:id', (req, res, next) => {
 })
 
 
-USER_API.post('/', (req, res, next) => {
+USERS.post('/', (req, res, next) => {
     res.status(200).json({
         message: 'handling POST requests to /user'
     })
@@ -33,12 +52,16 @@ USER_API.post('/', (req, res, next) => {
 
     
 
-USER_API.put('/:id', (req, res) => {
-    /// TODO: Edit user
+USERS.put('/:id', (req, res, next) => {
+    res.status(200).json({
+        message: 'handling PUT requests to /user'
+    })
 })
 
-USER_API.delete('/:id', (req, res) => {
-    /// TODO: Delete user.
+USERS.delete('/:id', (req, res, next) => {
+    res.status(200).json({
+        message: 'handling DELETE requests to /user'
+    })
 })
 
-module.exports = USER_API
+export default USERS;
