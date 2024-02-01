@@ -1,6 +1,9 @@
 import express from "express";
+import User from "../modules/user.mjs";
+import crypto from "crypto"
 const USERS = express.Router();
 
+const userbase = [];
 
 USERS.get('/', (req, res, next) => {
 
@@ -11,8 +14,23 @@ USERS.get('/', (req, res, next) => {
 
 USERS.post('/', (req, res, next) => {
 
-    res.status(200).json({
-        message: 'handling POST requests to /user'
+    var hashed = crypto.createHash('sha256').update(req.body.password).digest('hex');
+
+    const username = req.body.username;
+    const email = req.body.email;
+    const password = hashed;
+
+    const user = new User(username, email, password)
+
+    if (user.username != "" && user.email != "" && user.password != "") {
+        userbase.push(user)
+        console.log(userbase);
+    } 
+
+    //status 201 stands for created
+    res.status(201).json({
+        message: 'handling POST requests to /user',
+        createdUser: user
     })
 })
 
@@ -20,15 +38,15 @@ USERS.get('/:id', (req, res, next) => {
 
     const userid = req.params.id;
 
-    if(userid === 'special'){
+    if (userid === 'special') {
         res.status(200).json({
             message: 'you discovered the special id:',
             id: userid
-            
+
         })
     } else {
         res.status(200).json({
-            message : 'you passed an id'
+            message: 'you passed an id'
         })
     }
 
@@ -50,7 +68,7 @@ USERS.post('/', (req, res, next) => {
 
 
 
-    
+
 
 USERS.put('/:id', (req, res, next) => {
     res.status(200).json({

@@ -1,10 +1,15 @@
+
 class User {
 
     constructor(username, email, password) {
-        ///TODO: Are these the correct fields for your project?
+
         this.username = username
         this.email = email
         this.password = password
+
+
+        console.log("you did it! its a new user: " + this.username, this.email, this.password)
+       
         
     }
 }
