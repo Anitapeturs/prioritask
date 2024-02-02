@@ -3,82 +3,89 @@ import User from "../modules/user.mjs";
 import crypto from "crypto"
 const USERS = express.Router();
 
+//array where users are stored
 const userbase = [];
 
-USERS.get('/', (req, res, next) => {
-
-    res.status(200).json({
-        message: 'handling GET requests to /user'
-    })
-})
 
 USERS.post('/', (req, res, next) => {
 
+    //hashing password
     var hashed = crypto.createHash('sha256').update(req.body.password).digest('hex');
 
+    //posting user info from body
+    const id = req.body.id
     const username = req.body.username;
     const email = req.body.email;
     const password = hashed;
 
-    const user = new User(username, email, password)
+    //using the user constructor from user.mjs to fill in info
+    const user = new User(id, username, email, password)
 
-    if (user.username != "" && user.email != "" && user.password != "") {
+    //checking if user already exists
+    const userExists = userbase.find(u => u.email === email);
+    if (userExists) {
+        return res.status(400).json({ error: 'User already exists' })
+    } else if (username != "" && email != "" && password != "") {
         userbase.push(user)
         console.log(userbase);
-    } 
 
-    //status 201 stands for created
-    res.status(201).json({
-        message: 'handling POST requests to /user',
-        createdUser: user
-    })
-})
-
-USERS.get('/:id', (req, res, next) => {
-
-    const userid = req.params.id;
-
-    if (userid === 'special') {
-        res.status(200).json({
-            message: 'you discovered the special id:',
-            id: userid
-
-        })
-    } else {
-        res.status(200).json({
-            message: 'you passed an id'
+        //status 201 stands for created
+        res.status(201).json({
+            createdUser: user
         })
     }
 
-    // Tip: All the information you need to get the id part of the request can be found in the documentation 
-    // https://expressjs.com/en/guide/routing.html (Route parameters)
+})
 
-    /// TODO: 
-    // Return user object
+//get user by id
+USERS.get('/:id', (req, res, next) => {
+
+    const userId = req.params.id;
+
+    //finding user in the userbase
+    const userById = userbase.filter(function (user) {
+        return user.id === userId;
+
+    });
+
+    //return the user by id
+    res.status(200).json({
+        userById
+    });
 })
 
 
-USERS.post('/', (req, res, next) => {
-    res.status(200).json({
-        message: 'handling POST requests to /user'
-    })
-
-});
-
-
-
-
-
-
+//updating users with put
 USERS.put('/:id', (req, res, next) => {
+
+
+    for (var i = 0; i < userbase.length; i++) {
+
+        const userId = req.params.id;
+
+        if (userbase[i].id === userId) {
+            userbase[i].username = req.body.username;
+            userbase[i].email = req.body.email;
+        }
+        console.log('userbase was updated: ', userbase[i])
+    }
+
+
     res.status(200).json({
         message: 'handling PUT requests to /user'
     })
 })
 
+//delete user by id
 USERS.delete('/:id', (req, res, next) => {
+
+    //finding the user by id to delete
+    const indexToRemove = userbase.findIndex((usr) => usr.id === req.params.id);
+    userbase.splice(indexToRemove, 1);
+    console.log(userbase);
+
     res.status(200).json({
-        message: 'handling DELETE requests to /user'
+        message: 'user deleted'
     })
 })
 
