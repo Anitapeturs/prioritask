@@ -2,6 +2,7 @@ import express from "express";
 import User from "../modules/user.mjs";
 import crypto from "crypto"
 import jwt from 'jsonwebtoken';
+import { brotliCompress } from "zlib";
 const USERS = express.Router();
 
 //array where users are stored
@@ -79,11 +80,11 @@ USERS.post('/login', async (req, res, next) => {
 //get user by id
 USERS.get('/:id', (req, res, next) => {
 
-    const userId = req.params.id;
+    const userId = parseInt(req.params.id);
 
     //finding user in the userbase
     const userById = userbase.filter(function (user) {
-        return user.id === userId;
+        return parseInt(user.id) === parseInt(userId);
 
     });
 
@@ -100,18 +101,19 @@ USERS.put('/:id', (req, res, next) => {
 
     for (var i = 0; i < userbase.length; i++) {
 
-        const userId = req.params.id;
+        const userId = parseInt(req.params.id)
 
-        if (userbase[i].id === userId) {
+        if (parseInt(userbase[i].id) === userId) {
             userbase[i].username = req.body.username;
             userbase[i].email = req.body.email;
+            break
         }
-        console.log('userbase was updated: ', userbase[i])
+        
     }
 
 
     res.status(200).json({
-        message: 'handling PUT requests to /user'
+        message: 'handling PUT requests to /user', userbase
     })
 })
 
@@ -119,7 +121,7 @@ USERS.put('/:id', (req, res, next) => {
 USERS.delete('/:id', (req, res, next) => {
 
     //finding the user by id to delete
-    const indexToRemove = userbase.findIndex((usr) => usr.id === req.params.id);
+    const indexToRemove = userbase.findIndex((usr) => parseInt(usr.id) === parseInt(req.params.id));
     userbase.splice(indexToRemove, 1);
     console.log(userbase);
 
