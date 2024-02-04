@@ -80,11 +80,11 @@ USERS.post('/login', async (req, res, next) => {
 //get user by id
 USERS.get('/:id', (req, res, next) => {
 
-    const userId = req.params.id;
+    const userId = parseInt(req.params.id);
 
     //finding user in the userbase
     const userById = userbase.filter(function (user) {
-        return user.id === userId;
+        return parseInt(user.id) === parseInt(userId);
 
     });
 
