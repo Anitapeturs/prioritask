@@ -120,10 +120,6 @@ USERS.delete('/:id', (req, res, next) => {
     })
 })
 
-// function to create JWT token
-function generateToken(user) {
-    const payload = { id: user.id, username: user.username };
-    return jwt.sign(payload, secretKey, { expiresIn: '24h' }); // token expires in 24 hours
-}
+
 
 export default USERS;
