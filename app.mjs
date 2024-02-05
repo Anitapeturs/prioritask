@@ -1,11 +1,13 @@
 import express from "express"
 import USERS from "./routes/usersRoute.mjs"
 import bodyParser from "body-parser"
-import corsAccess from "./modules/corsAccess.mjs";
+import corsAccess from "./middleware/corsAccess.mjs";
+import calendar from "./middleware/calendar.mjs"
 
 app.use(bodyParser.json());
 app.use(express.static('public'));
-app.use(corsAccess)
+app.use(corsAccess);
+app.use(calendar);
 
 //Have the app use the user routes for /user
 app.use('/user', USERS)
