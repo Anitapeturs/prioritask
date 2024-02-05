@@ -1,67 +1,129 @@
 import express from "express";
+import User from "../modules/user.mjs";
+import crypto from "crypto"
+import jwt from "jsonwebtoken"
+
+
 const USERS = express.Router();
 
+//array where users are stored
+const userbase = [];
+const secretKey = 'my-secret-key';
 
-USERS.get('/', (req, res, next) => {
-
-    res.status(200).json({
-        message: 'handling GET requests to /user'
-    })
-})
 
 USERS.post('/', (req, res, next) => {
 
-    res.status(200).json({
-        message: 'handling POST requests to /user'
-    })
-})
+    //hashing password
+    var hashed = crypto.createHash('sha256').update(req.body.password).digest('hex');
 
-USERS.get('/:id', (req, res, next) => {
+    //posting user info from body
+    const id = userbase.length + 1;
+    const username = req.body.username;
+    const email = req.body.email;
+    const password = hashed;
 
-    const userid = req.params.id;
 
-    if(userid === 'special'){
-        res.status(200).json({
-            message: 'you discovered the special id:',
-            id: userid
-            
-        })
-    } else {
-        res.status(200).json({
-            message : 'you passed an id'
+    //using the user constructor from user.mjs to fill in info
+    const user = new User(id, username, email, password)
+
+    //checking if user already exists
+    const userExists = userbase.find(u => u.email === email);
+
+    if (userExists) {
+        return res.status(400).json({ error: 'User already exists' })
+    } else if (username != "" && email != "" && password != "") {
+        userbase.push(user)
+        console.log(userbase);
+
+        //status 201 stands for created
+        res.status(201).json({
+            createdUser: user
         })
     }
 
-    // Tip: All the information you need to get the id part of the request can be found in the documentation 
-    // https://expressjs.com/en/guide/routing.html (Route parameters)
-
-    /// TODO: 
-    // Return user object
 })
 
+USERS.post('/login', async (req, res, next) => {
 
-USERS.post('/', (req, res, next) => {
-    res.status(200).json({
-        message: 'handling POST requests to /user'
-    })
+    const pass = req.body.password;
+    const usrName = req.body.username;
 
+    //hashing password
+    var hashed = crypto.createHash('sha256').update(pass).digest('hex');
+
+    
+
+  // Check if the user exists and credentials are valid
+  const user = userbase.find(u => u.username === usrName && u.password === hashed);
+
+  if (!user) {
+    return res.status(401).json({ message: 'Invalid credentials' });
+  }
+
+  // Generate JWT token and send it as the response
+  const token = jwt.sign({ userId: user.id, username: user.username }, secretKey, { expiresIn: '1h' });
+  res.json({ token });
 });
 
 
 
+//get user by id
+USERS.get('/:id', (req, res, next) => {
 
-    
+    const userId = parseInt(req.params.id);
 
+    //finding user in the userbase
+    const userById = userbase.filter(function (user) {
+        return parseInt(user.id) === parseInt(userId);
+
+    });
+
+    //return the user by id
+    res.status(200).json({
+        userById
+    });
+})
+
+
+//updating users with put
 USERS.put('/:id', (req, res, next) => {
+
+
+    for (var i = 0; i < userbase.length; i++) {
+
+        const userId = parseInt(req.params.id)
+
+        if (parseInt(userbase[i].id) === userId) {
+            userbase[i].username = req.body.username;
+            userbase[i].email = req.body.email;
+            break
+        }
+        
+    }
+
+
     res.status(200).json({
-        message: 'handling PUT requests to /user'
+        message: 'handling PUT requests to /user', userbase
     })
 })
 
+//delete user by id
 USERS.delete('/:id', (req, res, next) => {
+
+    //finding the user by id to delete
+    const indexToRemove = userbase.findIndex((usr) => parseInt(usr.id) === parseInt(req.params.id));
+    userbase.splice(indexToRemove, 1);
+    console.log(userbase);
+
     res.status(200).json({
-        message: 'handling DELETE requests to /user'
+        message: 'user deleted'
     })
 })
+
+// function to create JWT token
+function generateToken(user) {
+    const payload = { id: user.id, username: user.username };
+    return jwt.sign(payload, secretKey, { expiresIn: '24h' }); // token expires in 24 hours
+}
 
 export default USERS;
