@@ -1,6 +1,10 @@
 import express from "express";
 import User from "../modules/user.mjs";
 import crypto from "crypto"
+import jwt from "jsonwebtoken"
+
+const USERS = express.Router();
+
 
 //array where users are stored
 const userbase = [];
@@ -35,7 +39,6 @@ USERS.post('/', (req, res, next) => {
         //status 201 stands for created
         res.status(201).json({
             createdUser: user
-
         })
     }
 
@@ -64,16 +67,7 @@ USERS.post('/login', async (req, res, next) => {
 });
 
 
-//get user by id
-USERS.get('/:id', (req, res, next) => {
 
-    const userId = parseInt(req.params.id);
-
-    //finding user in the userbase
-    const userById = userbase.filter(function (user) {
-        return parseInt(user.id) === parseInt(userId);
-
-    });
 
 //get user by id
 USERS.get('/:id', (req, res, next) => {

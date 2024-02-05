@@ -1,6 +1,7 @@
 import express from "express"
 import USERS from "./routes/usersRoute.mjs"
 import bodyParser from "body-parser"
+import corsAccess from "./modules/corsAccess.mjs";
 
 app.use(bodyParser.json());
 app.use(express.static('public'));
