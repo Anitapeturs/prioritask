@@ -1,14 +1,12 @@
 import express from "express";
 import User from "../modules/user.mjs";
 import crypto from "crypto"
-import jwt from 'jsonwebtoken';
-import { brotliCompress } from "zlib";
-const USERS = express.Router();
 
 //array where users are stored
 const userbase = [];
 const secretKey = 'my-secret-key';
 
+const USERS = express.Router();
 
 USERS.post('/', (req, res, next) => {
 
@@ -25,9 +23,6 @@ USERS.post('/', (req, res, next) => {
     //using the user constructor from user.mjs to fill in info
     const user = new User(id, username, email, password)
 
-    // Generate JWT token
-    const token = generateToken(user);
-
     //checking if user already exists
     const userExists = userbase.find(u => u.email === email);
 
@@ -39,8 +34,8 @@ USERS.post('/', (req, res, next) => {
 
         //status 201 stands for created
         res.status(201).json({
-            createdUser: user,
-            token: token
+            createdUser: user
+
         })
     }
 
@@ -48,32 +43,24 @@ USERS.post('/', (req, res, next) => {
 
 USERS.post('/login', async (req, res, next) => {
 
+   const pass = req.body.password;
+    const usrName = req.body.username;
+
     //hashing password
-    var hashed = crypto.createHash('sha256').update(req.body.password).digest('hex');
+    var hashed = crypto.createHash('sha256').update(pass).digest('hex');
 
-    //getting email and password from body
-    const email = req.body.email;
-    const password = hashed
+    
 
-    // Find user by email
-    const user = userbase.find(usr => usr.email === email);
+  // Check if the user exists and credentials are valid
+  const user = userbase.find(u => u.username === usrName && u.password === hashed);
 
-    // Check if user exists
-    if (!user) {
-        return res.status(401).json({ message: 'Invalid email or password' });
-    }
+  if (!user) {
+    return res.status(401).json({ message: 'Invalid credentials' });
+  }
 
-    // Check if the password is correct
-    if (user.password === password) {
-        // Generate JWT token
-        const token = generateToken(user);
-
-        res.json({ message: 'Login successful with token:', token });
-    }
-
-    // Generate JWT token
-    const token = generateToken(user);
-
+  // Generate JWT token and send it as the response
+  const token = jwt.sign({ userId: user.id, username: user.username }, secretKey, { expiresIn: '1h' });
+  res.json({ token });
 });
 
 
@@ -81,6 +68,17 @@ USERS.post('/login', async (req, res, next) => {
 USERS.get('/:id', (req, res, next) => {
 
     const userId = parseInt(req.params.id);
+
+    //finding user in the userbase
+    const userById = userbase.filter(function (user) {
+        return parseInt(user.id) === parseInt(userId);
+
+    });
+
+//get user by id
+USERS.get('/:id', (req, res, next) => {
+
+  const userId = parseInt(req.params.id);
 
     //finding user in the userbase
     const userById = userbase.filter(function (user) {
@@ -98,8 +96,7 @@ USERS.get('/:id', (req, res, next) => {
 //updating users with put
 USERS.put('/:id', (req, res, next) => {
 
-
-    for (var i = 0; i < userbase.length; i++) {
+ for (var i = 0; i < userbase.length; i++) {
 
         const userId = parseInt(req.params.id)
 
@@ -116,7 +113,7 @@ USERS.put('/:id', (req, res, next) => {
         message: 'handling PUT requests to /user', userbase
     })
 })
-
+  
 //delete user by id
 USERS.delete('/:id', (req, res, next) => {
 
@@ -130,10 +127,6 @@ USERS.delete('/:id', (req, res, next) => {
     })
 })
 
-// function to create JWT token
-function generateToken(user) {
-    const payload = { id: user.id, username: user.username };
-    return jwt.sign(payload, secretKey, { expiresIn: '24h' }); // token expires in 24 hours
-}
+
 
 export default USERS;

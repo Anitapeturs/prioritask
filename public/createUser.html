@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create a User</title>
+
+</head>
+
+<body>
+    <label for="username">Username</label>
+    <input id="username" type="text">
+
+    <label for="email">Email</label>
+    <input id="email" type="email">
+
+    <label for="password">Password</label>
+    <input id="password" type="password">
+
+    <button id="submit">Submit</button>
+</body>
+<script>
+
+    let username = document.getElementById("username")
+    let email = document.getElementById("email")
+    let password = document.getElementById("password")
+    let submit = document.getElementById("submit")
+
+    // when submit is clicked, run a function to save information for database
+    submit.addEventListener("click", () => {
+        let user = username.value;
+        let mail = email.value;
+        let pass = password.value;
+        
+
+        // get users
+        const url = 'http://localhost:8080/user'
+
+        // declaring the username, email and password values
+        const config = {
+            method: 'POST',
+            body: JSON.stringify({
+                username: user,
+                email: mail,
+                password: pass
+            }),
+            headers: {
+                'content-type': 'application/json'
+            }
+        };
+        console.log("config is: ", config)
+        fetch(url, config).then((res) => {
+            location.href = 'file:///Users/anitaastros/Documents/GitHub/prioritask/public/loginUser.html';
+        });
+    });
+</script>
+
+</html>

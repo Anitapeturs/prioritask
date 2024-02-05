@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Prioritask</title>
+  <style>
+  </style>
+</head>
+<h1 id="welcomeMessage">Welcome to Prioritask!, You are now logged in</h1>
+<body>
+
+  
+
+  <script>
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        // Redirect to the login page if the token is not available
+        window.location.href = 'login.html';
+      }
+
+      let welcomeMessage = document.getElementById('welcomeMessage');
+    
+
+  </script>
+
+</body>
+</html>
