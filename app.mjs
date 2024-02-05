@@ -2,8 +2,6 @@ import express from "express"
 import USERS from "./routes/usersRoute.mjs"
 import bodyParser from "body-parser"
 import corsAccess from "./modules/corsAccess.mjs";
-import jwt from "jsonwebtoken"
-
 
 
 const app = express();

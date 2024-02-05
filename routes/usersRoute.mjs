@@ -1,7 +1,7 @@
 import express from "express";
 import User from "../modules/user.mjs";
 import crypto from "crypto"
-
+import jwt from "jsonwebtoken"
 
 
 const USERS = express.Router();
