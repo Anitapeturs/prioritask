@@ -1,24 +1,14 @@
 import express from "express"
 import USERS from "./routes/usersRoute.mjs"
 import bodyParser from "body-parser"
+import corsAccess from "./modules/corsAccess.mjs";
 
 
 const app = express();
 
 app.use(bodyParser.json());
-
-//give cors access to any client
-app.use((req, res, next) => {
-    res.header('Assess-Control-Allow-Origin', '*')
-    res.header('Assess-Control-Allow-Headers', '*')
-
-    if (req.method === 'OPTIONS') {
-        res.header('Access-Control-Allow-Methods', 'PUT', 'POST', 'DELETE', 'GET')
-        return res.status(200).json({});
-    }
-    next();
-});
-
+app.use(express.static('public'));
+app.use(corsAccess)
 
 //Have the app use the user routes for /user
 app.use('/user', USERS)

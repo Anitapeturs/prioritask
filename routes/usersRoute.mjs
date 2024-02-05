@@ -1,8 +1,9 @@
 import express from "express";
 import User from "../modules/user.mjs";
 import crypto from "crypto"
-import jwt from 'jsonwebtoken';
-import { brotliCompress } from "zlib";
+import jwt from "jsonwebtoken"
+
+
 const USERS = express.Router();
 
 //array where users are stored
@@ -25,9 +26,6 @@ USERS.post('/', (req, res, next) => {
     //using the user constructor from user.mjs to fill in info
     const user = new User(id, username, email, password)
 
-    // Generate JWT token
-    const token = generateToken(user);
-
     //checking if user already exists
     const userExists = userbase.find(u => u.email === email);
 
@@ -39,8 +37,7 @@ USERS.post('/', (req, res, next) => {
 
         //status 201 stands for created
         res.status(201).json({
-            createdUser: user,
-            token: token
+            createdUser: user
         })
     }
 
@@ -48,33 +45,26 @@ USERS.post('/', (req, res, next) => {
 
 USERS.post('/login', async (req, res, next) => {
 
+    const pass = req.body.password;
+    const usrName = req.body.username;
+
     //hashing password
-    var hashed = crypto.createHash('sha256').update(req.body.password).digest('hex');
+    var hashed = crypto.createHash('sha256').update(pass).digest('hex');
 
-    //getting email and password from body
-    const email = req.body.email;
-    const password = hashed
+    
 
-    // Find user by email
-    const user = userbase.find(usr => usr.email === email);
+  // Check if the user exists and credentials are valid
+  const user = userbase.find(u => u.username === usrName && u.password === hashed);
 
-    // Check if user exists
-    if (!user) {
-        return res.status(401).json({ message: 'Invalid email or password' });
-    }
+  if (!user) {
+    return res.status(401).json({ message: 'Invalid credentials' });
+  }
 
-    // Check if the password is correct
-    if (user.password === password) {
-        // Generate JWT token
-        const token = generateToken(user);
-
-        res.json({ message: 'Login successful with token:', token });
-    }
-
-    // Generate JWT token
-    const token = generateToken(user);
-
+  // Generate JWT token and send it as the response
+  const token = jwt.sign({ userId: user.id, username: user.username }, secretKey, { expiresIn: '1h' });
+  res.json({ token });
 });
+
 
 
 //get user by id
@@ -130,10 +120,6 @@ USERS.delete('/:id', (req, res, next) => {
     })
 })
 
-// function to create JWT token
-function generateToken(user) {
-    const payload = { id: user.id, username: user.username };
-    return jwt.sign(payload, secretKey, { expiresIn: '24h' }); // token expires in 24 hours
-}
+
 
 export default USERS;
