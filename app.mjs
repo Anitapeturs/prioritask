@@ -3,9 +3,6 @@ import USERS from "./routes/usersRoute.mjs"
 import bodyParser from "body-parser"
 import corsAccess from "./modules/corsAccess.mjs";
 
-
-const app = express();
-
 app.use(bodyParser.json());
 app.use(express.static('public'));
 app.use(corsAccess)
