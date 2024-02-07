@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,22 +9,44 @@
   </style>
 </head>
 <h1 id="welcomeMessage">Welcome to Prioritask!, You are now logged in</h1>
+<p id="currentDate"></p>
+<h1 id="dayOfWeek"></h1>
+
+
 <body>
 
-  
+
 
   <script>
-      const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token');
 
-      if (!token) {
-        // Redirect to the login page if the token is not available
-        window.location.href = 'login.html';
-      }
+    if (!token) {
+      // redirect to the login page if the token is not available
+      window.location.href = 'login.html';
+    }
 
-      let welcomeMessage = document.getElementById('welcomeMessage');
-    
+    let welcomeMessage = document.getElementById('welcomeMessage');
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const currentDateElement = document.getElementById('currentDate');
+      const dayOfWeekElement = document.getElementById('dayOfWeek');
+      
+
+      // fetch calendar from the get request ob server
+      fetch('http://localhost:8080/calendar')
+        .then(response => response.json())
+        .then(data => {
+          currentDateElement.textContent = `Date: ${data.currentDate}`;
+          dayOfWeekElement.textContent = ` ${data.currentDayOfWeek}'s Todos`;
+
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+
 
   </script>
 
 </body>
+
 </html>
