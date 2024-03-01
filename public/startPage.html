@@ -8,6 +8,8 @@
   </style>
 </head>
 <h1 id="welcomeMessage">Welcome to Prioritask!, You are now logged in</h1>
+<h1 id="dayOfWeek"></h1>
+<p id="currentDate"></p>
 <body>
 
   
@@ -16,11 +18,26 @@
       const token = localStorage.getItem('token');
 
       if (!token) {
-        // Redirect to the login page if the token is not available
+        // redirect to the login page if the token is not available
         window.location.href = 'login.html';
       }
 
       let welcomeMessage = document.getElementById('welcomeMessage');
+
+      document.addEventListener('DOMContentLoaded', function() {
+            const dayOfWeekElement = document.getElementById('dayOfWeek');
+            const currentDateElement = document.getElementById('currentDate');
+
+            // fetch calendar from the get request ob server
+            fetch('http://localhost:8080/calendar')
+                .then(response => response.json())
+                .then(data => {
+                    dayOfWeekElement.textContent = ` ${data.currentDayOfWeek}'s Todos`;
+                    currentDateElement.textContent = `Date: ${data.currentDate}`;
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
     
 
   </script>
