@@ -29,7 +29,7 @@
             const currentDateElement = document.getElementById('currentDate');
 
             // fetch calendar from the get request ob server
-            fetch('http://localhost:8080/calendar')
+            fetch('https://prioritask.onrender.com/calendar')
                 .then(response => response.json())
                 .then(data => {
                     dayOfWeekElement.textContent = ` ${data.currentDayOfWeek}'s Todos`;
