@@ -4,7 +4,7 @@ import app from "./app.mjs"
 
 
 // Selecting a port for the server to use.
-const port = (process.env.PORT || 8080);
+const port = (process.env.PORT || 5432);
 
 const server = http.createServer(app)
 
