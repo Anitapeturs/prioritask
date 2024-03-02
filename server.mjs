@@ -10,6 +10,8 @@ const port = (process.env.PORT || 5432);
 const server = http.createServer(app)
 
 // Start the server 
-server.listen(port)
+server.listen(port, ()=>{
+console.log("Server listening on port:5432")
+});
 
 
