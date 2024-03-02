@@ -1,7 +1,11 @@
 // Database config
-import pg from 'pg'
-import connectionString from "../.env"
-const dbCredentials = process.env.DATABASE_URL || connectionString;
+import pg from "pg";
+const { Pool } = pg;
+
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL || `postgres://prioritask_db_user:CJA68QkAt6G4PzRzMsuKd4l510LiioXA@dpg-cngv29ect0pc73eanmu0-a.frankfurt-postgres.render.com/prioritask_db`,
+    ssl: process.env.DATABASE_URL ? true : false
+})
 
 class DataHandler {
 
@@ -17,13 +21,13 @@ class DataHandler {
 
     // --- User queries ---
 
-    async insertUser(id, username, email, password) {
+    async insertUser(username, email, password) {
         // Connect to database
-        const client = new pg.Client(this.credentials);
+        const client = await pool.connect();
         let results = null;
         try {
-            await client.connect();
-            results = await client.query('INSERT INTO "public"."users"("id","username", "email", "password") VALUES($1, $2, $3, $4) RETURNING *;', [id, username, email, password]);
+            //await client.connect();
+            results = await client.query('INSERT INTO "public"."users"("username", "email", "password") VALUES($1, $2, $3) RETURNING *;', [username, email, password]);
             results = results.rows[0].message;
             client.end();
         } catch (err) {
@@ -34,6 +38,7 @@ class DataHandler {
 
         return results;
     }
+
 
     /* Get all users from database
     async getAllUsers() {
@@ -136,4 +141,4 @@ class DataHandler {
 
 };
 
-export default new DataHandler(dbCredentials);
+export default new DataHandler();
