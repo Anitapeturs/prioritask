@@ -3,31 +3,20 @@ import pg from "pg";
 const { Pool } = pg;
 
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL || `postgres://prioritask_db_user:CJA68QkAt6G4PzRzMsuKd4l510LiioXA@dpg-cngv29ect0pc73eanmu0-a.frankfurt-postgres.render.com/prioritask_db`,
-    ssl: process.env.DATABASE_URL ? true : false
-})
+    connectionString: process.env.DATABASE_URL || `postgres://prioritask_db_user:CJA68QkAt6G4PzRzMsuKd4l510LiioXA@dpg-cngv29ect0pc73eanmu0-a.frankfurt-postgres.render.com/prioritask_db?ssl=true`
+});
 
 class DataHandler {
 
-    // Specifying the database connection
-    constructor(credentials) {
-        this.credentials = {
-            connectionString: credentials,
-            ssl: {
-                rejectUnauthorized: false
-            }
-        };
-    }
-
     // --- User queries ---
 
-    async insertUser(username, email, password) {
+    async insertUser(id, username, email, password) {
         // Connect to database
         const client = await pool.connect();
         let results = null;
         try {
             //await client.connect();
-            results = await client.query('INSERT INTO "public"."users"("username", "email", "password") VALUES($1, $2, $3) RETURNING *;', [username, email, password]);
+            results = await client.query('INSERT INTO "public"."users"("id","username", "email", "password") VALUES($1, $2, $3, $4) RETURNING *;', [id, username, email, password]);
             results = results.rows[0].message;
             client.end();
         } catch (err) {
