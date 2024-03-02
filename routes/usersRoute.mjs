@@ -10,9 +10,10 @@ const USERS = express.Router();
 //array where users are stored
 const userbase = [];
 const secretKey = 'my-secret-key';
+const userController = new UserController();
 
 
-USERS.post('/', async (req, res, next) => {
+USERS.post('/', async(req, res, next) => {
 
     //hashing password
     var hashed = crypto.createHash('sha256').update(req.body.password).digest('hex');
@@ -35,10 +36,10 @@ USERS.post('/', async (req, res, next) => {
     } else if (username != "" && email != "" && password != "") {
         userbase.push(user)
         
+            const created = await userController.createUser(user.id, user.username, user.email, user.password);
+            res.status(201).json(created).end();
          // Sending newUser information into the createUser function inside userController(userControl.mjs)
-  const created = await UserController.createUser(user.id, user.username, user.email, user.password);
   
-  res.status(201).json(created).end();
 
     }
 
