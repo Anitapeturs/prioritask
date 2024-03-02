@@ -1,5 +1,6 @@
 import express from "express";
 import User from "../modules/user.mjs";
+import UserController from "../controllers/userControl.mjs";
 import crypto from "crypto"
 import jwt from "jsonwebtoken"
 
@@ -11,7 +12,7 @@ const userbase = [];
 const secretKey = 'my-secret-key';
 
 
-USERS.post('/', (req, res, next) => {
+USERS.post('/', async (req, res, next) => {
 
     //hashing password
     var hashed = crypto.createHash('sha256').update(req.body.password).digest('hex');
@@ -33,12 +34,12 @@ USERS.post('/', (req, res, next) => {
         return res.status(400).json({ error: 'User already exists' })
     } else if (username != "" && email != "" && password != "") {
         userbase.push(user)
-        console.log(userbase);
+        
+         // Sending newUser information into the createUser function inside userController(userControl.mjs)
+  const created = await UserController.createUser(user.id, user.username, user.email, user.password);
+  
+  res.status(201).json(created).end();
 
-        //status 201 stands for created
-        res.status(201).json({
-            createdUser: user
-        })
     }
 
 })
