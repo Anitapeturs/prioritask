@@ -19,7 +19,7 @@ USERS.post('/', async(req, res, next) => {
     var hashed = crypto.createHash('sha256').update(req.body.password).digest('hex');
 
     //posting user info from body
-    const id = NEWID()
+    const id = crypto.randomBytes(16).toString("hex");
     const username = req.body.username;
     const email = req.body.email;
     const password = hashed;
