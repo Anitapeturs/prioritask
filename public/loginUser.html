@@ -2,54 +2,54 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
 
 </head>
 
 <body>
-    <section>
-        username: <input type="text" id="loginUsername">
-        password: <input type="password" id="loginPassword">
-        <button id="loginUser">Login user</button>
-        <p id = "errorMsg"></p>
-    </section>
+  <section>
+    username: <input type="text" id="loginUsername">
+    password: <input type="password" id="loginPassword">
+    <button id="loginUser">Login user</button>
+    <p id="errorMsg"></p>
+  </section>
 </body>
 <script>
-    
-   
-        let errorMsg = document.getElementById("errorMsg")
 
-        // When button is clicked, run function to log in 
-        document.getElementById("loginUser").onclick = async function () {
 
-            let username = loginUsername.value
-            let password = loginPassword.value
+  let errorMsg = document.getElementById("errorMsg")
 
-            const url = 'http://localhost:8080/user/login'
+  // When button is clicked, run function to log in 
+  document.getElementById("loginUser").onclick = async function () {
 
-            const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
+    let username = loginUsername.value
+    let password = loginPassword.value
 
-      const data = await response.json();
+    const url = 'http://localhost:8080/user/login'
 
-      if (response.ok) {
-        localStorage.setItem('token', data.token)
-        location.href = 'https://prioritask.onrender.com/startPage.html'
-        // Save the token or perform additional actions
-      } else {
-        console.error('Error:', data.message);
-      }
-                
-        }
-    </script>
-    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      localStorage.setItem('token', data.token)
+      location.href = 'file:///Users/anitaastros/Documents/GitHub/prioritask/public/startPage.html'
+      // Save the token or perform additional actions?
+    } else {
+      console.error('Error:', data.message);
+    }
+
+  }
+</script>
+
 </script>
 
 </html>
