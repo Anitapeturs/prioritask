@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,37 +11,39 @@
 <h1 id="welcomeMessage">Welcome to Prioritask!, You are now logged in</h1>
 <h1 id="dayOfWeek"></h1>
 <p id="currentDate"></p>
+
 <body>
 
-  
+
 
   <script>
-      const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token');
 
-      if (!token) {
-        // redirect to the login page if the token is not available
-        window.location.href = 'https://prioritask.onrender.com/loginUser.html';
-      }
+    if (!token) {
+      // redirect to the login page if the token is not available
+      window.location.href = 'file:///Users/anitaastros/Documents/GitHub/prioritask/public/loginUser.html';
+    }
 
-      let welcomeMessage = document.getElementById('welcomeMessage');
+    let welcomeMessage = document.getElementById('welcomeMessage');
 
-      document.addEventListener('DOMContentLoaded', function() {
-            const dayOfWeekElement = document.getElementById('dayOfWeek');
-            const currentDateElement = document.getElementById('currentDate');
+    document.addEventListener('DOMContentLoaded', function () {
+      const dayOfWeekElement = document.getElementById('dayOfWeek');
+      const currentDateElement = document.getElementById('currentDate');
 
-            // fetch calendar from the get request on server
-            fetch('http://localhost:8080/calendar')
-                .then(response => response.json())
-                .then(data => {
-                    dayOfWeekElement.textContent = ` ${data.currentDayOfWeek}'s Todos`;
-                    currentDateElement.textContent = `Date: ${data.currentDate}`;
-                })
-                .catch(error => console.error('Error:', error));
-        });
+      // fetch calendar from the get request on server
+      fetch('http://localhost:8080/calendar')
+        .then(response => response.json())
+        .then(data => {
+          dayOfWeekElement.textContent = ` ${data.currentDayOfWeek}'s Todos`;
+          currentDateElement.textContent = `Date: ${data.currentDate}`;
+        })
+        .catch(error => console.error('Error:', error));
+    });
 
-    
+
 
   </script>
 
 </body>
+
 </html>

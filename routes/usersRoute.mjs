@@ -70,56 +70,41 @@ USERS.post('/login', async (req, res, next) => {
 
 
 //get user by id
-USERS.get('/:id', (req, res, next) => {
-
-    const userId = parseInt(req.params.id);
-
-    //finding user in the userbase
-    const userById = userbase.filter(function (user) {
-        return parseInt(user.id) === parseInt(userId);
-
-    });
-
-    //return the user by id
-    res.status(200).json({
-        userById
-    });
-})
-
+USERS.get('/:id', async(req, res, next) => {
+    // Send a request to the usercontroller to get user
+    
+    const userId = req.params.id;
+    console.log(userId)
+    
+    const getUser = await userController.oneUser(userId);
+    res.status(200).json(getUser);
+  });
 
 //updating users with put
-USERS.put('/:id', (req, res, next) => {
+USERS.put('/:id', async(req, res, next) => {
+
+    const username = req.body.username;
+    const id  = req.params.id;
+  
+    // Running the updateUser function from userController(userControl.mjs)
+    const updatedUser = await userController.updateUser(username, id);
+    console.log("the user was updated", updatedUser)
+    res.status(200).json(updatedUser);
 
 
-    for (var i = 0; i < userbase.length; i++) {
-
-        const userId = parseInt(req.params.id)
-
-        if (parseInt(userbase[i].id) === userId) {
-            userbase[i].username = req.body.username;
-            userbase[i].email = req.body.email;
-            break
-        }
-        
-    }
-
-
-    res.status(200).json({
-        message: 'handling PUT requests to /user', userbase
     })
-})
+
 
 //delete user by id
-USERS.delete('/:id', (req, res, next) => {
+USERS.delete('/:id', async(req, res, next) => {
 
-    //finding the user by id to delete
-    const indexToRemove = userbase.findIndex((usr) => parseInt(usr.id) === parseInt(req.params.id));
-    userbase.splice(indexToRemove, 1);
-    console.log(userbase);
+    const  id  = req.params.id;
+  
+  // Send a request to the usercontroller to delete user
+  const userDeleted = await userController.deleteUser(id);
 
-    res.status(200).json({
-        message: 'user deleted'
-    })
+  res.status(200).json(userDeleted);
+  // return tasks;
 })
 
 export default USERS;

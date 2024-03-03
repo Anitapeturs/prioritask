@@ -10,8 +10,8 @@ const port = (process.env.PORT || 8080);
 const server = http.createServer(app)
 
 // Start the server 
-server.listen(port, ()=>{
-console.log("Server listening on port:8080")
+server.listen(port, () => {
+    console.log("Server listening on port:8080")
 });
 
 

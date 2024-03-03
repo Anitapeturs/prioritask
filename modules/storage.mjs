@@ -14,68 +14,27 @@ class DataHandler {
         // Connect to database
         const client = await pool.connect();
         let results = null;
+
         try {
-            //await client.connect();
+
             results = await client.query('INSERT INTO "public"."users"("id","username", "email", "password") VALUES($1, $2, $3, $4) RETURNING *;', [id, username, email, password]);
             results = results.rows[0].message;
             client.end();
         } catch (err) {
             client.end();
             console.log(err);
-            results = err;
         }
 
         return results;
-    }
-
-
-    /* Get all users from database
-    async getAllUsers() {
-        const client = new pg.Client(this.credentials);
-        let results = null;
-        try {
-            await client.connect();
-            results = await client.query('SELECT * FROM "public"."users";');
-            results = results.rows;
-            console.log(results)
-            client.end();
-        } catch (err) {
-            client.end();
-            console.log(err);
-            results = err;
-        }
-
-        return results;
-    }
-
-    async findUser(username, password) {
-
-        const client = new pg.Client(this.credentials);
-        let results = null;
-        try {
-            await client.connect();
-            results = await client.query('SELECT * FROM "public"."users" WHERE username = $1 AND password = $2;', [username, password]);
-            console.log("data returned", results.rows[0]);
-            results = results.rows[0];
-            client.end();
-        } catch (err) {
-            client.end();
-            console.log(err);
-            results = err;
-        }
-
-        return results;
-
     }
 
     async getUser(userId) {
-        const client = new pg.Client(this.credentials);
+        const client = await pool.connect();
         let results = null;
 
         try {
-            await client.connect();
-            results = await client.query('SELECT * FROM "public"."users" WHERE id = $1;', [userId]);
 
+            results = await client.query('SELECT * FROM "public"."users" WHERE id = $1;', [userId]);
             results = results.rows[0];
             client.end();
             res.json(results);
@@ -88,17 +47,16 @@ class DataHandler {
     };
 
     async editUser(username, id) {
-        const client = new pg.Client(this.credentials);
+        const client = await pool.connect();
         let results = null;
 
         try {
-            await client.connect();
-            results = await client.query('UPDATE "public"."users" SET "username" = $1 WHERE id = $2 RETURNING *;', [username, id]);
 
+            results = await client.query('UPDATE "public"."users" SET "username" = $1 WHERE id = $2 RETURNING *;', [username, id]);
             results = results.rows[0];
             client.end();
-            res.json(results);
         } catch (err) {
+            client.end();
             console.error(err.message);
         }
 
@@ -106,17 +64,13 @@ class DataHandler {
         return results;
     }
 
-
-
     async eraseUser(id) {
-        const client = new pg.Client(this.credentials);
+        const client = await pool.connect();
         let results = null;
 
         try {
 
-            await client.connect();
             results = await client.query('DELETE FROM "public"."users" WHERE id = $1;', [id]);
-            console.log("deleted user")
             results = results.rows[0];
             client.end();
             res.json(results);
@@ -126,7 +80,96 @@ class DataHandler {
 
 
         return results;
-    };*/
+    };
+
+
+    // --- List queries ---
+
+    async makeList(list) {
+        // Connect to database
+        const client = await pool.connect();
+        let results = null;
+        try {
+            results = await client.query('INSERT INTO "public"."lists"("listTitle") VALUES($1);', [list]);
+            results = results.rows[0]
+            client.end();
+        } catch (err) {
+            client.end();
+            console.log(err);
+            results = err;
+        }
+
+        return results;
+    }
+
+    async getAllLists() {
+        const client = await pool.connect();
+        let results = null;
+        try {
+            results = await client.query('SELECT * FROM "public"."lists";');
+            results = results.rows;
+            console.log(results);
+            client.end();
+        } catch (err) {
+            client.end();
+            console.log(err);
+            results = err;
+        }
+
+        return results;
+    }
+
+    async getList(id) {
+        const client = await pool.connect();
+        let results = null;
+
+        try {
+            results = await client.query('SELECT * FROM "public"."lists" WHERE id = $1;', [id]);
+
+            results = results.rows[0];
+            client.end();
+            return results;
+        } catch (err) {
+            console.error(err.message);
+        }
+    };
+
+    async changeList(list, listId) {
+        const client = await pool.connect();
+        let results = null;
+
+        try {
+            results = await client.query('UPDATE "public"."lists" SET "listTitle" = $1 WHERE id = $2 RETURNING *;', [list, listId]);
+            results = results.rows[0];
+            client.end();
+            res.json(results);
+        } catch (err) {
+            console.error(err.message);
+        }
+
+
+        return results;
+    };
+
+    async eraseList(id) {
+        const client = await pool.connect();
+        let results = null;
+
+        try {
+
+            results = await client.query('DELETE FROM "public"."lists" WHERE id = $1;', [id]);
+            console.log("deleted list")
+            results = results.rows[0];
+            client.end();
+            res.json(results);
+        } catch (err) {
+            console.error(err.message);
+        }
+
+
+        return results;
+    };
+
 
 };
 
