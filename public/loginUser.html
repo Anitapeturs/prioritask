@@ -40,7 +40,6 @@
       const data = await response.json();
 
       if (response.ok) {
-        console.log('Token:', data.token);
         localStorage.setItem('token', data.token)
         location.href = 'https://prioritask.onrender.com/startPage.html'
         // Save the token or perform additional actions
