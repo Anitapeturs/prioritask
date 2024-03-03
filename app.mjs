@@ -12,6 +12,12 @@ app.use(express.static('public'));
 app.use(corsAccess);
 app.use(calendar);
 
+app.get('/', (req, res) => {
+    res.json({
+        message: 'PrioriTask app running'
+    });
+});
+
 //Have the app use the user routes for /user
 app.use('/user', USERS)
 

@@ -19,7 +19,7 @@
 
       if (!token) {
         // redirect to the login page if the token is not available
-        window.location.href = 'login.html';
+        window.location.href = 'https://prioritask.onrender.com/loginUser.html';
       }
 
       let welcomeMessage = document.getElementById('welcomeMessage');
@@ -28,8 +28,8 @@
             const dayOfWeekElement = document.getElementById('dayOfWeek');
             const currentDateElement = document.getElementById('currentDate');
 
-            // fetch calendar from the get request ob server
-            fetch('https://prioritask.onrender.com/calendar')
+            // fetch calendar from the get request on server
+            fetch('http://localhost:8080/calendar')
                 .then(response => response.json())
                 .then(data => {
                     dayOfWeekElement.textContent = ` ${data.currentDayOfWeek}'s Todos`;
