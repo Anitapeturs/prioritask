@@ -207,12 +207,12 @@ class DataHandler {
 
          // --- Task queries ---
 
-    async makeTask(task, listId) {
+    async makeTask(task, listId, userId) {
         // Connect to database
         const client = await pool.connect();
         let results = null;
         try {
-            results = await client.query('INSERT INTO "public"."tasks"("task", "listId") VALUES($1, $2) RETURNING *;', [task, listId]);
+            results = await client.query('INSERT INTO "public"."tasks"("task", "listId", "userId") VALUES($1, $2, $3) RETURNING *;', [task, listId, userId]);
             results = results.rows[0];
             client.end();
         } catch (err) {
@@ -225,11 +225,11 @@ class DataHandler {
     }
 
 // Get all tasks from database
-    async getAllTasks() {
+    async getAllTasks(userId) {
         const client = await pool.connect();
         let results = null;
         try {
-            results = await client.query('SELECT * FROM "public"."tasks";');
+            results = await client.query('SELECT * FROM "public"."tasks" WHERE "userId" = $1;', [userId]);
             results = results.rows;
             console.log(results);
             client.end();
@@ -288,13 +288,13 @@ class DataHandler {
                 console.log("deleted task")
                 results = results.rows[0];
                 client.end();
-                res.json(results);
+                return results;
               } catch (err) {
                 console.error(err.message);
               }
     
              
-              return results;
+              
             };
         
             async getTasksByList(listId) {

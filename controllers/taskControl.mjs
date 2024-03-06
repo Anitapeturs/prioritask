@@ -2,12 +2,11 @@ import DataHandler from "../modules/storage.mjs";
 
 class TaskController {
 
-    async createTask (task, listId) {
+    async createTask (task, listId, userId) {
         // Add a new task to the db
         try {
-            console.log("Task: ", task,listId);
             
-            let response = await DataHandler.makeTask(task, listId);
+            let response = await DataHandler.makeTask(task, listId, userId);
             console.log("createTask resp", response);
             return response;
         } catch (error) {
@@ -16,9 +15,9 @@ class TaskController {
     
     } 
 
-    async getTasks() {
+    async getTasks(userId) {
         try {
-            let response = await DataHandler.getAllTasks();
+            let response = await DataHandler.getAllTasks(userId);
             return response;
         } catch (error) {
             console.error(error)

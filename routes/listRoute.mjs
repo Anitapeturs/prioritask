@@ -1,5 +1,4 @@
 import express from "express";
-import List from "../modules/list.mjs";
 import ListController from "../controllers/listControl.mjs";
 
 const LISTS = express.Router();
@@ -11,18 +10,16 @@ LISTS.post('/', async (req, res) => {
     const list  = req.body.listTitle;
     let userId  = req.body.userId;
   
-    const newList = new List(list, userId);
-  
     // Sending newList information into the createList function inside listController(listControl.js)
-    const createdList = await listController.createList(newList.list, newList.userId);
+    const createdList = await listController.createList(list, userId);
     
     res.status(200).json(createdList).end();
   });
   
   
-  // GET ALL LISTS
+  // GET ALL OF THE USER'S LISTS
   
-  LISTS.get('/:id', async (req, res) => {
+  LISTS.get('/user/:id', async (req, res) => {
     const userId = req.params.id
     const listsFound = await listController.getLists(userId);
   
