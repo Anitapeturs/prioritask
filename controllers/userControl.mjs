@@ -6,11 +6,17 @@ class UserController {
     // Create a new user in the database
     async createUser(username, email, password) {
         try {
-            console.log("username: ", username);
-            console.log("email: ", email);
-            console.log("password: ", password);
-
             let response = await DataHandler.insertUser(username, email, password);
+            return response
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    //checking if user exists by searching for the email in database
+    async userExists(email) {
+        try {
+            let response = await DataHandler.existingUser(email);
             return response;
         } catch (error) {
             console.error(error)

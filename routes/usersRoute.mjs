@@ -1,14 +1,10 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import User from "../modules/user.mjs";
 import UserController from "../controllers/userControl.mjs";
 import Auth from "../middleware/auth.mjs";
 
 const USERS = express.Router();
-
-//array where users are stored
-const userbase = [];
 const userController = new UserController();
 const secretKey = 'my-secret-key';
 
@@ -36,23 +32,22 @@ USERS.post('/', async(req, res, next) => {
     const email = req.body.email;
     const password = hashed;
 
-
-    //using the user constructor from user.mjs to fill in info
-    const user = new User(username, email, password);
-
     //checking if user already exists
-    const userExists = userbase.find(u => u.email === email);
+    const userCheck = await userController.userExists(email);
 
-    if (userExists) {
-        return res.status(400).json({ error: 'User already exists' })
-    } else if (username != "" && email != "" && password != "") {
-        userbase.push(user)
-        
-            const created = await userController.createUser(user.username, user.email, user.password);
-            res.status(201).json(created).end();
+    if (userCheck) {
+      console.log("user already exists")
+      return -1
+      
+  } else if (username !== "" && email !== "" && password !== "") {
+      try {
+          const created = await userController.createUser(username, email, password);
   
-
-    }
+          return res.status(201).json(created).end();
+      } catch (error) {
+          console.error('Error creating user:', error).end();
+      }
+  } 
 
 })
 
