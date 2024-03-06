@@ -18,7 +18,7 @@ class DataHandler {
         try {
 
             results = await client.query('INSERT INTO "public"."users"("username", "email", "password") VALUES($1, $2, $3) RETURNING *;', [username, email, password]);
-            results = results.rows[0].message;
+            results = results.rows[0]
             client.end();
         } catch (err) {
             client.end();
@@ -27,6 +27,23 @@ class DataHandler {
 
         return results;
     }
+
+    async existingUser(email) {
+        const client = await pool.connect();
+        let results = null;
+
+        try {
+
+            results = await client.query('SELECT * FROM "public"."users" WHERE email = $1', [email]);
+            results = results.rows[0];
+            client.end();
+            return results;
+        } catch (err) {
+            console.error(err.message);
+        }
+
+
+    };
 
     async validUser(username, password) {
         const client = await pool.connect();

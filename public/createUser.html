@@ -48,10 +48,16 @@
                 'content-type': 'application/json'
             }
         };
-        fetch(url, config).then((res) => {
-        window.location.href = 'loginUser.html';
-        });
-    });
+        fetch(url, config)
+        .then((res) => {
+            if (res) {
+                //Successfully created, next location login user
+                window.location.href = 'loginUser.html';
+            } else {
+                console.error('Error creating user:', res.statusText);
+            }
+        }) 
+});
 </script>
 
 </html>
