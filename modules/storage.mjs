@@ -10,14 +10,14 @@ class DataHandler {
 
     // --- User queries ---
 
-    async insertUser(id, username, email, password) {
+    async insertUser(username, email, password) {
         // Connect to database
         const client = await pool.connect();
         let results = null;
 
         try {
 
-            results = await client.query('INSERT INTO "public"."users"("id","username", "email", "password") VALUES($1, $2, $3, $4) RETURNING *;', [id, username, email, password]);
+            results = await client.query('INSERT INTO "public"."users"("username", "email", "password") VALUES($1, $2, $3) RETURNING *;', [username, email, password]);
             results = results.rows[0].message;
             client.end();
         } catch (err) {
@@ -27,6 +27,24 @@ class DataHandler {
 
         return results;
     }
+
+    async validUser(username, password) {
+        const client = await pool.connect();
+        let results = null;
+
+        try {
+
+            results = await client.query('SELECT * FROM "public"."users" WHERE username = $1 AND password = $2;', [username , password]);
+            results = results.rows[0];
+            client.end();
+            res.json(results);
+        } catch (err) {
+            console.error(err.message);
+        }
+
+
+        return results;
+    };
 
     async getUser(userId) {
         const client = await pool.connect();
@@ -85,12 +103,12 @@ class DataHandler {
 
     // --- List queries ---
 
-    async makeList(list) {
+    async makeList(list, userId) {
         // Connect to database
         const client = await pool.connect();
         let results = null;
         try {
-            results = await client.query('INSERT INTO "public"."lists"("listTitle") VALUES($1);', [list]);
+            results = await client.query('INSERT INTO "public"."lists"("listTitle", "userId") VALUES($1, $2);', [list, userId]);
             results = results.rows[0]
             client.end();
         } catch (err) {
@@ -102,11 +120,11 @@ class DataHandler {
         return results;
     }
 
-    async getAllLists() {
+    async getAllLists(userId) {
         const client = await pool.connect();
         let results = null;
         try {
-            results = await client.query('SELECT * FROM "public"."lists";');
+            results = await client.query('SELECT * FROM "public"."lists" WHERE "userId" = $1;', [userId]);
             results = results.rows;
             console.log(results);
             client.end();
@@ -170,7 +188,123 @@ class DataHandler {
         return results;
     };
 
+         // --- Task queries ---
+
+    async makeTask(task, listId) {
+        // Connect to database
+        const client = await pool.connect();
+        let results = null;
+        try {
+            results = await client.query('INSERT INTO "public"."tasks"("task", "listId") VALUES($1, $2) RETURNING *;', [task, listId]);
+            results = results.rows[0];
+            client.end();
+        } catch (err) {
+            client.end();
+            console.log(err);
+            results = err;
+        }
+
+        return results;
+    }
+
+// Get all tasks from database
+    async getAllTasks() {
+        const client = await pool.connect();
+        let results = null;
+        try {
+            results = await client.query('SELECT * FROM "public"."tasks";');
+            results = results.rows;
+            console.log(results);
+            client.end();
+        } catch (err) {
+            client.end();
+            console.log(err);
+            results = err;
+        }
+
+        return results;
+    }
+
+    async getTask(id) {
+        const client = await pool.connect();
+        let results = null;
+
+        try {
+            results = await client.query('SELECT * FROM "public"."tasks" WHERE id = $1;', [id]);
+            
+            results = results.rows[0];
+            client.end();
+            res.json(results);
+          } catch (err) {
+            console.error(err.message);
+          }
+
+         
+          return results;
+        };
+
+
+    async changeTask(task, id) {
+        const client = await pool.connect();
+        let results = null;
+
+        try {
+            results = await client.query('UPDATE "public"."tasks" SET "task" = $1 WHERE id = $2 RETURNING *;', [task, id]);
+            results = results.rows[0];
+            client.end();
+            res.json(results);
+          } catch (err) {
+            console.error(err.message);
+          }
+
+         
+          return results;
+        };
+
+        async eraseTask(id) {
+            const client = await pool.connect();
+            let results = null;
+    
+            try {
+
+                results = await client.query('DELETE FROM "public"."tasks" WHERE id = $1;', [id]);
+                console.log("deleted task")
+                results = results.rows[0];
+                client.end();
+                res.json(results);
+              } catch (err) {
+                console.error(err.message);
+              }
+    
+             
+              return results;
+            };
+        
+            async getTasksByList(listId) {
+                const client = await pool.connect();
+                let results = null;
+        
+                try {
+                    results = await client.query('SELECT "task" FROM "public"."tasks" WHERE "listId" = $1;', [listId]);
+                    
+                    results = results.rows;
+                    client.end();
+                    res.json(results);
+                  } catch (err) {
+                    console.error(err.message);
+                  }
+        
+                 
+                  return results;
+                };
+   
+    
+
 
 };
+
+
+
+
 
 export default new DataHandler();

@@ -5,17 +5,16 @@ import ListController from "../controllers/listControl.mjs";
 const LISTS = express.Router();
 const listController = new ListController();
 
-// ----- List Routes -----
-
 // CREATE A LIST
 
 LISTS.post('/', async (req, res) => {
     const list  = req.body.listTitle;
+    let userId  = req.body.userId;
   
-    const newList = new List(list);
+    const newList = new List(list, userId);
   
     // Sending newList information into the createList function inside listController(listControl.js)
-    const createdList = await listController.createList(newList.list);
+    const createdList = await listController.createList(newList.list, newList.userId);
     
     res.status(200).json(createdList).end();
   });
@@ -23,8 +22,9 @@ LISTS.post('/', async (req, res) => {
   
   // GET ALL LISTS
   
-  LISTS.get('/', async (req, res) => {
-    const listsFound = await listController.getLists();
+  LISTS.get('/:id', async (req, res) => {
+    const userId = req.params.id
+    const listsFound = await listController.getLists(userId);
   
     res.status(200).json(listsFound).end();
     // return tasks;

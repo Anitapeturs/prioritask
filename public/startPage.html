@@ -8,23 +8,36 @@
   <style>
   </style>
 </head>
-<h1 id="welcomeMessage">Welcome to Prioritask!, You are now logged in</h1>
+<h1 id="welcomeMessage"></h1>
 <h1 id="dayOfWeek"></h1>
 <p id="currentDate"></p>
+
+<input id="listInput" type="text" /></br>
+<button id="newList">Create list</button>
+<div class="lists" id="list"></div>
+<button id="logout">Log Out</button>
+
 
 <body>
 
 
-
   <script>
     const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+    const username = localStorage.getItem('username');
+    const lists = document.querySelector('.lists');
+    const list = document.getElementById('list');
+    const listInput = document.getElementById('listInput');
+    const newList = document.getElementById('newList');
+    const logout = document.getElementById('logout');
 
     if (!token) {
       // redirect to the login page if the token is not available
-      window.location.href = 'file:///Users/anitaastros/Documents/GitHub/prioritask/public/loginUser.html';
+      window.location.href = 'loginUser.html';
     }
 
     let welcomeMessage = document.getElementById('welcomeMessage');
+    welcomeMessage.innerHTML = `${username}'s PrioriTasks`;
 
     document.addEventListener('DOMContentLoaded', function () {
       const dayOfWeekElement = document.getElementById('dayOfWeek');
@@ -34,15 +47,122 @@
       fetch('http://localhost:8080/calendar')
         .then(response => response.json())
         .then(data => {
-          dayOfWeekElement.textContent = ` ${data.currentDayOfWeek}'s Todos`;
-          currentDateElement.textContent = `Date: ${data.currentDate}`;
+          dayOfWeekElement.innerHTML = ` ${data.currentDayOfWeek}'s Todos`;
+          currentDateElement.innerHTML = `Date: ${data.currentDate}`;
         })
         .catch(error => console.error('Error:', error));
     });
 
+    lists.addEventListener('click', (event) => {
+      const clickedList = event.target.closest('.list');
+
+      if (clickedList) {
+        // Retrieve the list ID from the data attribute
+        const listId = clickedList.getAttribute('id');
+        localStorage.setItem("listId", listId);
+
+        // Filter tasks by list ID
+        //const tasksForList = tasks.filter(task => task.listId === listId);
+
+        //renderTasks(tasksForList);
+      }
+    });
+
+    logout.addEventListener('click', (event) => {
+      localStorage.removeItem("token");
+      window.location.href = 'loginUser.html';
+    });
+
+
+    async function fetchLists() {
+
+      const url = `http://localhost:8080/list/${userId}`;
+
+
+      const config = {
+        method: 'GET',
+
+        headers: {
+          'content-type': 'application/json',
+        }
+      };
+
+      fetch(url, config).then((res) => {
+        return res.json();
+      }).then(jsonRes => {
+        console.log("JSON results", jsonRes);
+
+        let theList = [];
+
+        for (var i = 0; i < jsonRes.length; i++) {
+          var obj = jsonRes[i];
+
+          theList.push(obj.listTitle);
+          list.innerHTML = list.innerHTML + `<h2 class="list" id="${obj.id}">${obj.listTitle}</h2>`
+
+
+          localStorage.setItem("list", JSON.stringify(obj));
+
+        }
+
+      });
+
+
+    }
+
+    fetchLists()
+
+    newList.addEventListener("click", () => {
+
+      let listName = listInput.value;
+
+      const url = `http://localhost:8080/list`
+
+
+      const config = {
+        method: 'POST',
+        body: JSON.stringify({
+          listTitle: listName,
+          userId: userId
+        }),
+        headers: {
+          'content-type': 'application/json'
+        }
+
+      };
+
+
+      console.log("config is: ", config)
+      fetch(url, config).then((res) => {
+        console.log("Request finished");
+        window.location.href = 'startPage.html';
+
+      })
+
+    });
+
+
+
 
 
   </script>
+
+  <style>
+    * {
+      background-color: white;
+      border: none;
+      justify-content: center;
+      text-align: center;
+    }
+
+
+
+
+    #listInput {
+      background: rgb(239, 237, 235);
+      margin: 10px;
+    }
+  </style>
 
 </body>
 

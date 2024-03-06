@@ -1,6 +1,8 @@
 import express from "express"
 import USERS from "./routes/usersRoute.mjs"
 import LISTS from "./routes/listRoute.mjs"
+import TASKS from "./routes/taskRoute.mjs"
+
 import bodyParser from "body-parser"
 import corsAccess from "./middleware/corsAccess.mjs";
 import calendar from "./middleware/calendar.mjs"
@@ -13,6 +15,7 @@ app.use(express.static('public'));
 app.use(corsAccess);
 app.use(calendar);
 app.use('/list', LISTS);
+app.use('/task', TASKS);
 app.use('/user', USERS);
 
 app.get('/', (req, res, next) => {

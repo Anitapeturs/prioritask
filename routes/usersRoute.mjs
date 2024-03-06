@@ -1,16 +1,29 @@
 import express from "express";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import User from "../modules/user.mjs";
 import UserController from "../controllers/userControl.mjs";
-import crypto from "crypto"
-import jwt from "jsonwebtoken"
-
+import Auth from "../middleware/auth.mjs";
 
 const USERS = express.Router();
 
 //array where users are stored
 const userbase = [];
-const secretKey = 'my-secret-key';
 const userController = new UserController();
+const secretKey = 'my-secret-key';
+
+USERS.post('/login', Auth, (req, res, next) => {
+  const authUser = req.authUser;
+
+  const token = jwt.sign({ userId: authUser.id , username: authUser.username}, secretKey, { expiresIn: '1h' });
+  const userId = parseInt(authUser.id);
+  const userName = authUser.username;
+  console.log(token);
+  console.log(userId);
+
+  res.status(200).json({ message: 'Login successful', token, userId, userName});
+
+});
 
 
 USERS.post('/', async(req, res, next) => {
@@ -19,14 +32,13 @@ USERS.post('/', async(req, res, next) => {
     var hashed = crypto.createHash('sha256').update(req.body.password).digest('hex');
 
     //posting user info from body
-    const id = crypto.randomBytes(16).toString("hex");
     const username = req.body.username;
     const email = req.body.email;
     const password = hashed;
 
 
     //using the user constructor from user.mjs to fill in info
-    const user = new User(id, username, email, password)
+    const user = new User(username, email, password);
 
     //checking if user already exists
     const userExists = userbase.find(u => u.email === email);
@@ -36,36 +48,13 @@ USERS.post('/', async(req, res, next) => {
     } else if (username != "" && email != "" && password != "") {
         userbase.push(user)
         
-            const created = await userController.createUser(user.id, user.username, user.email, user.password);
+            const created = await userController.createUser(user.username, user.email, user.password);
             res.status(201).json(created).end();
-         // Sending newUser information into the createUser function inside userController(userControl.mjs)
   
 
     }
 
 })
-
-USERS.post('/login', async (req, res, next) => {
-
-    const pass = req.body.password;
-    const usrName = req.body.username;
-
-    //hashing password
-    var hashed = crypto.createHash('sha256').update(pass).digest('hex');
-
-    
-
-  // Check if the user exists and credentials are valid
-  const user = userbase.find(u => u.username === usrName && u.password === hashed);
-
-  if (!user) {
-    return res.status(401).json({ message: 'Invalid credentials' });
-  }
-
-  // Generate JWT token and send it as the response
-  const token = jwt.sign({ userId: user.id, username: user.username }, secretKey, { expiresIn: '1h' });
-  res.json({ token });
-});
 
 
 

@@ -1,10 +1,9 @@
 class List {
 
-    constructor(list) {
-        // Specify attributes here like these below
+    constructor(list, userId) {
         this.list = list;
         //this.shareable = false;
-       // this.userAccess = [userId];
+        this.userId = userId;
     }
 }
 
