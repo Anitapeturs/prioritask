@@ -40,9 +40,12 @@
     const data = await response.json();
 
     if (response.ok) {
-      localStorage.setItem('token', data.token)
-      location.href = 'file:///Users/anitaastros/Documents/GitHub/prioritask/public/startPage.html'
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userId', data.userId);
+      localStorage.setItem('username', data.userName);
+      window.location.href = 'startPage.html';
       // Save the token or perform additional actions?
+
     } else {
       console.error('Error:', data.message);
     }

@@ -3,12 +3,12 @@ import DataHandler from "../modules/storage.mjs";
 class ListController {
     // All list functions
     
-    async createList (list) {
+    async createList (list, userId) {
         // Add a new list to the db
         try {
             console.log("Listname: ", list);
             
-            let response = await DataHandler.makeList(list);
+            let response = await DataHandler.makeList(list, userId);
             return response;
         } catch (error) {
             console.error(error)
@@ -16,9 +16,9 @@ class ListController {
     
     }
 
-    async getLists() {
+    async getLists(userId) {
         try {
-            let response = await DataHandler.getAllLists();
+            let response = await DataHandler.getAllLists(userId);
             return response;
         } catch (error) {
             console.error(error)

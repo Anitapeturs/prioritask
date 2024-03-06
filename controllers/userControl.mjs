@@ -4,13 +4,22 @@ class UserController {
     // All user functions
 
     // Create a new user in the database
-    async createUser(id, username, email, password) {
+    async createUser(username, email, password) {
         try {
             console.log("username: ", username);
             console.log("email: ", email);
             console.log("password: ", password);
 
-            let response = await DataHandler.insertUser(id, username, email, password);
+            let response = await DataHandler.insertUser(username, email, password);
+            return response;
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    async userAuth(username, password) {
+        try {
+            let response = await DataHandler.validUser(username, password);
             return response;
         } catch (error) {
             console.error(error)
