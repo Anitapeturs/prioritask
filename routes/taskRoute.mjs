@@ -53,8 +53,8 @@ TASKS.post('/', async (req, res) => {
   
   TASKS.put('/:id', async (req, res) => {
     
-    const { task } = req.body;
-    const { id } = req.params;
+    const task  = req.body.task;
+    const id  = req.params.id;
     
     const updatedTask = await taskController.updateTask(task, id);
     console.log("the task was updated", updatedTask)

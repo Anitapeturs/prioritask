@@ -44,10 +44,10 @@
       localStorage.setItem('userId', data.userId);
       localStorage.setItem('username', data.userName);
       window.location.href = 'startPage.html';
-      // Save the token or perform additional actions?
 
     } else {
-      console.error('Error:', data.message);
+      errorMsg.innerHTML = "Login Failed, please make sure Username and password match"
+
     }
 
   }
