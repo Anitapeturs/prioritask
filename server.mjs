@@ -1,6 +1,6 @@
-import 'dotenv/config'
 import http from "http"
 import app from "./app.mjs"
+
 
 
 // Selecting a port for the server to use.
@@ -8,6 +8,7 @@ import app from "./app.mjs"
 const port = (process.env.PORT || 8080);
 
 const server = http.createServer(app)
+
 
 // Start the server 
 server.listen(port, () => {

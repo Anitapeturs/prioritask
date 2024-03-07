@@ -177,13 +177,12 @@ class DataHandler {
             results = await client.query('UPDATE "public"."lists" SET "listTitle" = $1 WHERE id = $2 RETURNING *;', [list, listId]);
             results = results.rows[0];
             client.end();
-            res.json(results);
+            return results;
         } catch (err) {
             console.error(err.message);
         }
 
 
-        return results;
     };
 
     async eraseList(id) {
@@ -196,13 +195,13 @@ class DataHandler {
             console.log("deleted list")
             results = results.rows[0];
             client.end();
-            res.json(results);
+            console.log(results)
+            return results;
         } catch (err) {
             console.error(err.message);
         }
+return results;
 
-
-        return results;
     };
 
          // --- Task queries ---

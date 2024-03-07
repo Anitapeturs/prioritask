@@ -46,9 +46,7 @@ class ListController {
 
     async deleteList (id) {
         try {
-            console.log("id: ", id)
             let response = await DataHandler.eraseList(id);
-           
             return response;
         } catch (error) {
             console.error(error)

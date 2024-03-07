@@ -57,11 +57,11 @@ LISTS.post('/', async (req, res) => {
   
   LISTS.delete('/:id', async (req, res) => {
     
-    const { id } = req.params;
+    const id  = req.params.id;
     
     const listDeleted = await listController.deleteList(id);
   
-    res.status(200).json(listDeleted);
+    res.status(200).json(listDeleted).end()
     
     
   });
