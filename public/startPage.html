@@ -6,33 +6,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome to Prioritask</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <style>
-  </style>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap">
+  <link rel="stylesheet" href="style.css">
 </head>
-<h1 id="welcomeMessage"></h1>
-<h1 id="dayOfWeek"></h1>
-<p id="currentDate"></p>
-
-<input id="listInput" type="text" /></br>
-<button id="newList">Create list</button>
-<div class="lists"></div>
-<button id="logout">Log Out</button>
 
 
 <body>
 
+  <p id="currentDate"></p>
+  <h1 id="welcomeMessage"></h1>
+  <h1 id="dayOfWeek"></h1>
+
+  <div class="lists"></div></br>
+  <button id="userSettings" class="userSettings">User Settings</button></br>
+  <button id="logout" class="logout">Log Out</button>
 
   <script>
+
     const token = localStorage.getItem('token');
     const userId = localStorage.getItem('userId');
     const username = localStorage.getItem('username');
     const lists = document.querySelector('.lists');
-    const listInput = document.getElementById('listInput');
-    const newList = document.getElementById('newList');
     const logout = document.getElementById('logout');
+    const userSettings = document.getElementById('userSettings');
 
+    //simplifying config by including in a const
+    const deleteConfig = {
+      method: 'DELETE',
+      headers: {
+        'content-type': 'application/json',
+      }
+    };
+
+    //if user is not logged in, redirected to login
     if (!token) {
-      // redirect to the login page if the token is not available
       window.location.href = 'loginUser.html';
     }
 
@@ -42,11 +49,14 @@
 
     //get the current day
     document.addEventListener('DOMContentLoaded', function () {
+
       const dayOfWeekElement = document.getElementById('dayOfWeek');
       const currentDateElement = document.getElementById('currentDate');
 
+      fetchLists()
+
       fetch('http://localhost:8080/calendar')
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
           dayOfWeekElement.innerHTML = ` ${data.currentDayOfWeek}'s Todos`;
           currentDateElement.innerHTML = `Date: ${data.currentDate}`;
@@ -54,194 +64,293 @@
         .catch(error => console.error('Error:', error));
     });
 
-    fetchLists()
+    // rendering lists on the page
+    function fetchLists() {
+
+      fetch(`http://localhost:8080/list/user/${userId}`)
+        .then((res) => res.json())
+        .then(loopList => {
+          loopList.forEach(thisList => {
+
+            // containing each list in a div
+            const listContainer = document.createElement("div");
+            listContainer.className = "list-container";
+
+            // creating the list title
+            const theList = document.createElement("div");
+            theList.id = parseInt(thisList.id);
+            theList.className = "list";
+            theList.innerHTML = `<h2>${thisList.listTitle}</h2>`;
+            theList.style.cursor = "pointer";
+
+            //adding input for new tasks
+            const newTask = document.createElement("input");
+            newTask.id = parseInt(thisList.id);
+            newTask.className = "newTask"
+
+
+            const listButtons = document.createElement('div');
+            listButtons.className = "listButtons";
+
+            // creating delete button
+            const deleteList = document.createElement("div");
+            deleteList.id = parseInt(thisList.id);
+            deleteList.className = "deleteList";
+            deleteList.innerHTML = `<i class="fa fa-trash-o" style="font-size:24px"></i>`;
+            deleteList.style.cursor = "pointer";
+
+            // creating edit button
+            const editList = document.createElement("div");
+            editList.id = parseInt(thisList.id);
+            editList.className = "editList";
+            editList.innerHTML = `<i class="fa fa-pencil" style="font-size:24px"></i>`;
+            editList.style.cursor = "pointer";
+
+            // Appending buttons to the listContainer
+            listButtons.appendChild(editList);
+            listButtons.appendChild(deleteList);
+            listContainer.append(listButtons);
+            listContainer.append(theList);
+            listContainer.append(newTask);
+
+            // Fetch tasks for the current list
+            fetch(`http://localhost:8080/task/list/${thisList.id}`)
+              .then((res) => res.json())
+              .then(tasks => {
+
+                //contain each task in a div
+                const taskContainer = document.createElement("div");
+                taskContainer.className = "task-container";
+
+                tasks.forEach(listTask => {
+
+                  // creating the task name
+                  const theTask = document.createElement("div");
+                  theTask.id = listTask.id;
+                  theTask.className = "task";
+                  theTask.innerHTML = `<h4>${listTask.task}</h4>`;
+                  theTask.style.cursor = "pointer";
+
+                  // creating delete button
+                  const deleteTask = document.createElement("button");
+                  deleteTask.id = parseInt(listTask.id);
+                  deleteTask.className = "deleteTask";
+                  deleteTask.innerHTML = `<i class="fa fa-trash-o" style="font-size:24px"></i>`;
+                  deleteTask.style.cursor = "pointer";
+
+                  // Create checkbox for each task
+                  const checkbox = document.createElement("input");
+                  checkbox.type = "checkbox";
+                  checkbox.className = "checkbox";
+                  checkbox.style.cursor = "pointer";
+                  checkbox.checked = listTask.completed;
+
+                  //save checked boolean
+                  checkbox.addEventListener('change', async () => {
+
+                    const url = `http://localhost:8080/task/completed/${listTask.id}`;
+
+                    const config = {
+                      method: 'PUT',
+                      headers: {
+                        'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({ completed: checkbox.checked })
+                    }
+
+                    try {
+                      const response = await fetch(url, config);
+                      if (!response.ok) {
+                        console.error('Failed to update task:', response.status);
+                      }
+                    } catch (error) {
+                      console.error('Error updating task:', error);
+                    }
+                  });
+
+                  // Append checkbox, delete button, and the task to the taskContainer
+                  taskContainer.appendChild(checkbox);
+                  taskContainer.appendChild(deleteTask);
+                  taskContainer.appendChild(theTask);
+
+                  // Event listener for delete button
+                  theTask.addEventListener('click', (evt) => {
+
+                    const taskToEdit = evt.target.closest('.task');
+                    const taskId = taskToEdit.id;
+
+                    if (taskToEdit) {
+                      theTask.innerHTML = `<input id="inputTask" type="text" />
+                                           <button id="doneTask"'>&#10003;</button>`;
+
+                      const input = document.getElementById("inputTask");
+                      const done = document.getElementById("doneTask");
+
+                      done.addEventListener('click', async (evt) => {
+
+                        const updatedTask = input.value;
+                        const taskId = taskToEdit.getAttribute('id');
+
+                        const url = `http://localhost:8080/task/${taskId}`;
+
+                        const config = {
+                          method: 'PUT',
+                          headers: {
+                            'Content-Type': 'application/json'
+                          },
+                          body: JSON.stringify({ task: updatedTask })
+                        };
+
+                        try {
+                          const response = await fetch(url, config);
+                          window.location.reload();
+                        } catch (error) {
+                          console.error('Could not delete task:', error);
+                        }
+                      })
+                    }
+                  })
+
+                  // delete button for each task
+                  deleteTask.addEventListener('click', async (evt) => {
+
+                    const taskToDelete = evt.target.closest('.deleteTask');
+                    const taskId = taskToDelete.id;
+                    const url = `http://localhost:8080/task/${taskId}`;
+
+                    try {
+                      const response = await fetch(url, deleteConfig);
+                      if (response.ok) {
+                        window.location.reload();
+                      }
+                    } catch (error) {
+                      console.error('Could not delete task:', error);
+                    }
+                  });
+                });
+                // Append taskContainer to listContainer
+                listContainer.append(taskContainer);
+              })
+              .catch(error => {
+                console.error('Error fetching tasks:', error);
+              });
+
+            // adding listContainers to the lists div
+            lists.append(listContainer);
+
+            // Event listener for delete button
+            deleteList.addEventListener('click', async (evt) => {
+
+              const listToDelete = evt.target.closest('.deleteList');
+              const listId = listToDelete.getAttribute('id');
+              const taskUrl = `http://localhost:8080/task/list/${listId}`;
+              const listUrl = `http://localhost:8080/list/${listId}`;
+
+              try {
+                const taskResponse = await fetch(taskUrl, deleteConfig);
+                if (taskResponse.ok) {
+                  const listResponse = await fetch(listUrl, deleteConfig);
+                  if (listResponse.ok) {
+                    window.location.reload();
+                  }
+                } else {
+                  console.error('Failed to delete list', taskResponse.status);
+                }
+              } catch (error) {
+                console.error('Could not delete list:', error);
+              }
+            });
+
+            // edit list name button
+            editList.addEventListener('click', (evt) => {
+
+              const listToEdit = evt.target.closest('.editList');
+
+              if (listToEdit) {
+
+                theList.innerHTML = `<input id="inputList" type="text" />
+                                     <button id="doneList"'>&#10003;</button>`;
+
+                const input = document.getElementById("inputList");
+                const done = document.getElementById("doneList");
+
+                done.addEventListener('click', async (evt) => {
+
+                  const updatedList = input.value;
+                  const listId = listToEdit.getAttribute('id');
+                  const url = `http://localhost:8080/list/${listId}`;
+
+                  const config = {
+                    method: 'PUT',
+                    headers: {
+                      'content-type': 'application/json'
+                    },
+                    body: JSON.stringify({ listTitle: updatedList })
+                  };
+
+                  try {
+                    await fetch(url, config);
+                    location.reload();
+                  } catch (error) {
+                    console.error('Error updating list:', error);
+                  };
+                });
+              };
+            });
+
+            newTask.addEventListener('keypress', async (evt) => {
+
+              if (evt.key === "Enter") {
+
+                evt.preventDefault();
+                const createdTask = newTask.value;
+                const listId = newTask.id;
+                const userId = localStorage.getItem('userId')
+                const url = `http://localhost:8080/task`;
+
+                const config = {
+                  method: 'POST',
+                  headers: {
+                    'content-type': 'application/json'
+                  },
+                  body: JSON.stringify({ task: createdTask, listId: listId, userId: userId })
+                };
+
+                try {
+                  const newTaskResponse = await fetch(url, config);
+                  location.reload();
+                } catch (error) {
+                  console.error('Error creating task:', error);
+                };
+              };
+            });
+          });
+        });
+    };
+
+    //usersettings button
+    userSettings.addEventListener('click', (evt) => {
+      window.location.href = 'userSettings.html';
+    });
 
     //get list id when list name is clicked
-    lists.addEventListener('click', (event) => {
-      const clickedList = event.target.closest('.list');
+    lists.addEventListener('click', (evt) => {
+
+      const clickedList = evt.target.closest('.list');
 
       if (clickedList) {
-        // Retrieve the list ID from the data attribute
         const listId = clickedList.getAttribute('id');
         localStorage.setItem("listId", listId);
       }
     });
 
     //deleting the token to log user out when button is clicked
-    logout.addEventListener('click', (event) => {
+    logout.addEventListener('click', (evt) => {
       localStorage.removeItem("token");
       window.location.href = 'loginUser.html';
     });
 
-    //rendering lists on page
-    async function fetchLists() {
-
-      const url = `http://localhost:8080/list/user/${userId}`;
-
-
-      const config = {
-        method: 'GET',
-
-        headers: {
-          'content-type': 'application/json',
-        }
-      };
-
-      fetch(url, config).then((res) => {
-        return res.json();
-        //saving the response as loopList, variable used to loop through the lists
-      }).then(loopList => {
-
-        for (let i = 0; i < loopList.length; i++) {
-          let thisList = loopList[i];
-
-          //creating a new div for each list, with the list's id
-          let div = document.createElement("div");
-          div.innerHTML = `<h2 class="list" id="${thisList.id}">${thisList.listTitle}</h2>`;
-
-          //creating a button for each list to delete it
-          let deleteList = document.createElement("button");
-          deleteList.id = parseInt(thisList.id);
-          deleteList.className = "delete"
-          deleteList.innerHTML = `<i class="fa fa-trash-o" style="font-size:24px"></i>`;
-
-          //creating a button for each list to edit it
-          let editList = document.createElement("button");
-          editList.id = parseInt(thisList.id);
-          editList.className = "edit"
-          editList.innerHTML = `<i class="fa fa-pencil" style="font-size:24px"></i>`;
-
-          //making sure the button is added to the div and then added to the lists div
-          div.append(editList);
-          div.append(deleteList);
-          lists.appendChild(div);
-
-          //when the delete button is clicked, it deletes list by id
-          div.addEventListener('click', async (event) => {
-            const listToDelete = event.target.closest('.delete');
-
-            if (listToDelete) {
-              const listId = listToDelete.getAttribute('id');
-
-              const url = `http://localhost:8080/list/${listId}`
-
-              const config = {
-                method: 'DELETE',
-                headers: {
-                  'content-type': 'application/json'
-                }
-              };
-
-              //reload page once the list is deleted
-              await fetch(url, config).then((res) => {
-                window.location.reload();
-
-              })
-
-            }
-
-            
-          });
-
-           //when the edit button is clicked, it edits list by id
-           div.addEventListener('click', async (evt) => {
-            
-            const listToEdit = evt.target.closest('.edit');
-
-            if (listToEdit) {
-
-              div.innerHTML = `<input id="input" type="text" /><button id="done" style='font-size:24px;'>&#10003;</button>`;
-
-              let input = document.getElementById("input");
-              let done = document.getElementById("done");
-
-              done.addEventListener('click', async (evt) => {
-                console.log(input.value)
-                let updatedList = input.value;
-                let listId = listToEdit.getAttribute('id');
-
-                const url = `http://localhost:8080/list/${listId}`
-
-              const config = {
-                method: 'PUT',
-                headers: {
-                  'content-type': 'application/json'
-                },
-                body: JSON.stringify({listTitle: updatedList})
-              };
-
-              //reload page once the list is deleted
-              await fetch(url, config).then((res) => {
-                location.reload();
-              })
-              })
-              
-
-
-            }
-
-            
-          });
-
-        }
-
-
-
-      });
-
-
-    }
-
-    //creating a new list when button is clicked
-    newList.addEventListener("click", () => {
-
-      let listName = listInput.value;
-
-      const url = `http://localhost:8080/list`
-
-
-      const config = {
-        method: 'POST',
-        body: JSON.stringify({
-          listTitle: listName,
-          userId: userId
-        }),
-        headers: {
-          'content-type': 'application/json'
-        }
-
-      };
-
-      fetch(url, config).then((res) => {
-        window.location.reload();
-
-      })
-
-    });
-
-
-
-
-
   </script>
-
-  <style>
-    * {
-      background-color: rgb(156, 98, 98);
-      border: none;
-      justify-content: center;
-      text-align: center;
-    }
-
-
-
-
-    #listInput {
-      background: rgb(239, 237, 235);
-      margin: 10px;
-    }
-  </style>
-
 </body>
 
 </html>

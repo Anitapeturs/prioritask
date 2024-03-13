@@ -42,7 +42,7 @@ class UserController {
     }
 
 
-    async updateUser (username, id) {
+    async updateUser(username, id) {
         // update user in the db
         try {
             console.log("User: ", username, id)
@@ -51,12 +51,12 @@ class UserController {
         } catch (error) {
             console.error(error)
         }
-    
-    } 
+
+    }
 
     async deleteUser(id) {
         // Delete an existing user
-    
+
         try {
             console.log("id: ", id)
             let response = await DataHandler.eraseUser(id);
@@ -66,8 +66,8 @@ class UserController {
             console.error(error)
         }
     };
-    
-    
+
+
 
 }
 

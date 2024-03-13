@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create User</title>
+</head>
+
+<body>
+    <label for="username">Username</label>
+    <input id="username" type="text">
+
+    <button id="save">Save</button>
+    <button id="deleteUser">Delete User</button>
+</body>
+<script>
+
+    const userId = localStorage.getItem('userId')
+    const username = document.getElementById("username");
+    const save = document.getElementById("save");
+    const deleteUser = document.getElementById("deleteUser");
+
+    // when submit is clicked, run a function to save information for database
+    save.addEventListener("click", () => {
+        let newUsername = username.value;
+
+        // update user
+        const url = `http://localhost:8080/user/${userId}`
+
+        const config = {
+            method: 'PUT',
+            body: JSON.stringify({
+                username: newUsername
+            }),
+            headers: {
+                'content-type': 'application/json'
+            }
+        };
+        fetch(url, config)
+            .then((res) => {
+                if (res) {
+                    //Successfully created, next location login user
+                    localStorage.setItem('username', newUsername)
+                    window.location.href = 'startPage.html';
+                } else {
+                    console.error('Error creating user:', res.statusText);
+                }
+            })
+    });
+
+    deleteUser.addEventListener("click", () => {
+
+        const url = `http://localhost:8080/user/${userId}`
+
+        const config = {
+            method: 'DELETE',
+            headers: {
+                'content-type': 'application/json'
+            }
+        };
+        fetch(url, config)
+            .then((res) => {
+                if (res) {
+                    window.location.href = 'createUser.html';
+                } else {
+                    console.error('Error creating user:', res.statusText);
+                }
+            })
+    });
+</script>
+
+</html>

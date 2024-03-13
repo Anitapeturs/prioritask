@@ -2,18 +2,18 @@ import DataHandler from "../modules/storage.mjs";
 
 class ListController {
     // All list functions
-    
-    async createList (list, userId) {
+
+    async createList(list, userId) {
         // Add a new list to the db
         try {
             console.log("Listname: ", list);
-            
+
             let response = await DataHandler.makeList(list, userId);
             return response;
         } catch (error) {
             console.error(error)
         }
-    
+
     }
 
     async getLists(userId) {
@@ -34,24 +34,24 @@ class ListController {
         }
     }
 
-    async updateList (list, id) {
+    async updateList(list, id) {
         try {
             let response = await DataHandler.changeList(list, id);
             return response;
         } catch (error) {
             console.error(error)
         }
-    
-    } 
 
-    async deleteList (id) {
+    }
+
+    async deleteList(id) {
         try {
             let response = await DataHandler.eraseList(id);
             return response;
         } catch (error) {
             console.error(error)
         }
-    
+
     }
 }
 
