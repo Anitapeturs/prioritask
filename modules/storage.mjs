@@ -51,7 +51,7 @@ class DataHandler {
 
         try {
 
-            results = await client.query('SELECT * FROM "public"."users" WHERE username = $1 AND password = $2;', [username , password]);
+            results = await client.query('SELECT * FROM "public"."users" WHERE username = $1 AND password = $2;', [username, password]);
             results = results.rows[0];
             client.end();
             res.json(results);
@@ -200,11 +200,11 @@ class DataHandler {
         } catch (err) {
             console.error(err.message);
         }
-return results;
+        return results;
 
     };
 
-         // --- Task queries ---
+    // --- Task queries ---
 
     async makeTask(task, listId, userId) {
         // Connect to database
@@ -223,7 +223,7 @@ return results;
         return results;
     }
 
-// Get all tasks from database
+    // Get all tasks from database
     async getAllTasks(userId) {
         const client = await pool.connect();
         let results = null;
@@ -247,17 +247,32 @@ return results;
 
         try {
             results = await client.query('SELECT * FROM "public"."tasks" WHERE id = $1;', [id]);
-            
+
             results = results.rows[0];
             client.end();
             res.json(results);
-          } catch (err) {
+        } catch (err) {
             console.error(err.message);
-          }
+        }
 
-         
-          return results;
-        };
+
+        return results;
+    };
+
+    async getTasksByList(listId) {
+        const client = await pool.connect();
+        let results = null;
+
+        try {
+            results = await client.query('SELECT * FROM "public"."tasks" WHERE "listId" = $1;', [listId]);
+
+            results = results.rows;
+            client.end();
+            return results;
+        } catch (err) {
+            console.error(err.message);
+        }
+    };
 
 
     async changeTask(task, id) {
@@ -268,53 +283,62 @@ return results;
             results = await client.query('UPDATE "public"."tasks" SET "task" = $1 WHERE id = $2 RETURNING *;', [task, id]);
             results = results.rows[0];
             client.end();
-            res.json(results);
-          } catch (err) {
+            return results;
+        } catch (err) {
             console.error(err.message);
-          }
+        }
 
-         
-          return results;
-        };
+    };
 
-        async eraseTask(id) {
-            const client = await pool.connect();
-            let results = null;
-    
-            try {
+    async eraseTask(id) {
+        const client = await pool.connect();
+        let results = null;
 
-                results = await client.query('DELETE FROM "public"."tasks" WHERE id = $1;', [id]);
-                console.log("deleted task")
-                results = results.rows[0];
-                client.end();
-                return results;
-              } catch (err) {
-                console.error(err.message);
-              }
-    
-             
-              
-            };
-        
-            async getTasksByList(listId) {
-                const client = await pool.connect();
-                let results = null;
-        
-                try {
-                    results = await client.query('SELECT "task" FROM "public"."tasks" WHERE "listId" = $1;', [listId]);
-                    
-                    results = results.rows;
-                    client.end();
-                    res.json(results);
-                  } catch (err) {
-                    console.error(err.message);
-                  }
-        
-                 
-                  return results;
-                };
-   
-    
+        try {
+
+            results = await client.query('DELETE FROM "public"."tasks" WHERE id = $1;', [id]);
+            console.log("deleted task")
+            results = results.rows[0];
+            client.end();
+            return results;
+        } catch (err) {
+            console.error(err.message);
+        }
+
+
+
+    };
+
+    async deleteTasksByList(listId) {
+        const client = await pool.connect();
+        let results = null;
+
+        try {
+            results = await client.query('DELETE FROM "public"."tasks" WHERE "listId" = $1 RETURNING *;', [listId]);
+
+            results = results.rows;
+            client.end();
+            return results;
+        } catch (err) {
+            console.error(err.message);
+        }
+
+    };
+
+    async completeTask(completed, id) {
+        const client = await pool.connect();
+        let results = null;
+
+        try {
+            results = await client.query('UPDATE "public"."tasks" SET "completed" = $1 WHERE id = $2 RETURNING *;', [completed, id]);
+            results = results.rows[0];
+            client.end();
+            return results;
+        } catch (err) {
+            console.error(err.message);
+        }
+
+    };
 
 
 };
