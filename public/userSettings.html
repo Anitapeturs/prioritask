@@ -4,22 +4,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://kit.fontawesome.com/4be0ef7ca6.js" crossorigin="anonymous"></script>
+
     <title>Create User</title>
 </head>
 
 <body>
-    <label for="username">Username</label>
-    <input id="username" type="text">
-
-    <button id="save">Save</button>
     <button id="deleteUser">Delete User</button>
+
+    <h1 id="settingsTitle"></h1>
+    <label for="username">New Username</label>
+    <input id="username" type="text">
+    
+
+    <button id="submit">Save</button>
+
+    <a href="javascript:history.back()">
+        <i class='fas fa-angle-left' id="backArrow" aria-hidden="true"></i>
+    </a>
+     
+    
+    
 </body>
 <script>
 
+const token = localStorage.getItem('token');
     const userId = localStorage.getItem('userId')
     const username = document.getElementById("username");
-    const save = document.getElementById("save");
+    const save = document.getElementById("submit");
     const deleteUser = document.getElementById("deleteUser");
+    const settingsTitle = document.getElementById("settingsTitle");
+    const user = localStorage.getItem("username");
+
+    settingsTitle.textContent = `settings for ${user}`
 
     // when submit is clicked, run a function to save information for database
     save.addEventListener("click", () => {
@@ -34,7 +53,8 @@
                 username: newUsername
             }),
             headers: {
-                'content-type': 'application/json'
+                'content-type': 'application/json',
+                'Authorization': `Bearer ${token}`
             }
         };
         fetch(url, config)
@@ -56,7 +76,8 @@
         const config = {
             method: 'DELETE',
             headers: {
-                'content-type': 'application/json'
+                'content-type': 'application/json',
+                'Authorization': `Bearer ${token}`
             }
         };
         fetch(url, config)

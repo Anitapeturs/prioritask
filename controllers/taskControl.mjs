@@ -7,7 +7,6 @@ class TaskController {
         try {
 
             let response = await DataHandler.makeTask(task, listId, userId);
-            console.log("createTask resp", response);
             return response;
         } catch (error) {
             console.error(error)
@@ -37,9 +36,7 @@ class TaskController {
     async updateTask(task, id) {
         // update task in the db
         try {
-            console.log("Task: ", task)
             let response = await DataHandler.changeTask(task, id);
-            console.log("updateTask resp", response);
             return response;
         } catch (error) {
             console.error(error)
@@ -48,11 +45,8 @@ class TaskController {
     }
 
     async deleteTask(id) {
-
         try {
-            console.log("id: ", id)
             let response = await DataHandler.eraseTask(id);
-            console.log("updateTask resp", response);
             return response;
         } catch (error) {
             console.error(error)

@@ -1,59 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
-
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap">
+<link rel="stylesheet" href="style.css">
+<title>Create User</title>
 </head>
 
 <body>
-  <section>
-    username: <input type="text" id="loginUsername">
-    password: <input type="password" id="loginPassword">
-    <button id="loginUser">Login user</button>
+
+  <h1>Log in</h1>
+  </head>
+
+  <body>
+    <label for="username">Username</label>
+    <input id="loginUsername" type="text">
+
+    <label for="password">Password</label>
+    <input id="loginPassword" type="password">
+
+    <button id="submit">Login user</button>
+
     <p id="errorMsg"></p>
-  </section>
-</body>
-<script>
+
+  </body>
+  <script>
 
 
-  const errorMsg = document.getElementById("errorMsg")
-  const loginUser = document.getElementById("loginUser")
-  
+    const errorMsg = document.getElementById("errorMsg");
+    const loginUser = document.getElementById("submit");
+    const loginUsername = document.getElementById("loginUsername");
+    const loginPassword = document.getElementById("loginPassword");
 
-  // When button is clicked, run function to log in 
-  loginUser.onclick = async function () {
 
-    let username = loginUsername.value
-    let password = loginPassword.value
 
-    const url = 'http://localhost:8080/user/login'
+    // When button is clicked, run function to log in 
+    loginUser.onclick = async function () {
 
-    const config = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
+      let username = loginUsername.value;
+      let password = loginPassword.value;
+
+      const url = 'http://localhost:8080/user/login'
+
+      const config = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password }),
+      };
+
+      const response = await fetch(url, config);
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userId', data.userId);
+        localStorage.setItem('username', data.username);
+        window.location.href = 'startPage.html';
+
+      } else {
+        errorMsg.innerHTML = "Login Failed, please make sure Username and password match"
+      }
     };
+  </script>
 
-    const response = await fetch(url, config);
-    const data = await response.json();
-
-    if (response.ok) {
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userId', data.userId);
-      localStorage.setItem('username', data.userName);
-      window.location.href = 'startPage.html';
-
-    } else {
-      errorMsg.innerHTML = "Login Failed, please make sure Username and password match"
-    }
-  }
-</script>
-
-</script>
+  </script>
 
 </html>
