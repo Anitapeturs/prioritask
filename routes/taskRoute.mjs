@@ -1,7 +1,7 @@
 import express from "express";
 import TaskController from "../controllers/taskControl.mjs";
 import { HTTPCodes } from "../modules/httpConstants.mjs";
-import SuperLogger from "../modules/SuperLogger.mjs";
+import SuperLogger from "../modules/superLogger.mjs";
 
 const TASKS = express.Router();
 const taskController = new TaskController();
