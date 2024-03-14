@@ -1,94 +1,94 @@
 import express from "express";
-import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import UserController from "../controllers/userControl.mjs";
 import Auth from "../middleware/auth.mjs";
+import { HTTPCodes } from "../modules/httpConstants.mjs";
+import SuperLogger from "../modules/superLogger.mjs";
 
 const USERS = express.Router();
 const userController = new UserController();
-const secretKey = 'my-secret-key';
 
-USERS.post('/login', Auth, (req, res, next) => {
+USERS.post('/login', Auth, (req, res) => {
+
+  // if authentication is successful, get users details and token from the Auth module
   const authUser = req.authUser;
+  const token = req.token; 
 
-  const token = jwt.sign({ userId: authUser.id, username: authUser.username }, secretKey, { expiresIn: '1h' });
-  const userId = parseInt(authUser.id);
-  const userName = authUser.username;
-  console.log(token);
-  console.log(userId);
+  console.log(authUser)
 
-  res.status(200).json({ message: 'Login successful', token, userId, userName });
-
+  // Send success response with token
+  res.status(HTTPCodes.SuccesfulResponse.Ok).json({ message: 'Login successful', token, userId: authUser.id, username: authUser.username });
 });
 
 
 USERS.post('/', async (req, res, next) => {
+  try {
+    // Hashing password
+    var hashed = crypto.createHash('sha256').update(req.body.password).digest('hex');
 
-  //hashing password
-  var hashed = crypto.createHash('sha256').update(req.body.password).digest('hex');
+    // Extracting user info from request body
+    const username = req.body.username;
+    const email = req.body.email;
+    const password = hashed;
 
-  //posting user info from body
-  const username = req.body.username;
-  const email = req.body.email;
-  const password = hashed;
+    // Checking if user already exists
+    const userCheck = await userController.userExists(email);
 
-  //checking if user already exists
-  const userCheck = await userController.userExists(email);
-
-  if (userCheck) {
-    console.log("user already exists")
-    return -1
-
-  } else if (username !== "" && email !== "" && password !== "") {
-    try {
+    if (userCheck) {
+      console.log("User already exists");
+      res.status(HTTPCodes.ClientSideErrorResponse.BadRequest).json({ error: 'User already exists' });
+    } else if (username !== "" && email !== "" && password !== "") {
       const created = await userController.createUser(username, email, password);
-
-      return res.status(201).json(created).end();
-    } catch (error) {
-      console.error('Error creating user:', error).end();
+      res.status(HTTPCodes.SuccesfulResponse.Created).json(created);
+    } else {
+      res.status(HTTPCodes.ClientSideErrorResponse.BadRequest).json({ error: 'Invalid input data' });
     }
+  } catch (error) {
+    SuperLogger.log(`Error creating user: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
+    res.status(HTTPCodes.ServerErrorResponse.InternalError).json({ error: 'Error creating user' });
   }
-
-})
-
-
-
-//get user by id
-USERS.get('/:id', async (req, res, next) => {
-  // Send a request to the usercontroller to get user
-
-  const userId = req.params.id;
-  console.log(userId)
-
-  const getUser = await userController.oneUser(userId);
-  res.status(200).json(getUser);
 });
 
-//updating users with put
+// Get user by id
+USERS.get('/:id', async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    console.log(userId)
+    const getUser = await userController.oneUser(userId);
+    res.status(HTTPCodes.SuccesfulResponse.Ok).json(getUser);
+  } catch (error) {
+    SuperLogger.log(`Error retrieving user: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
+    res.status(HTTPCodes.ServerErrorResponse.InternalError).json({ error: 'Error retrieving user' });
+  }
+});
+
+// Update user with PUT
 USERS.put('/:id', async (req, res, next) => {
+  try {
+    const username = req.body.username;
+    const id = req.params.id;
 
-  const username = req.body.username;
-  const id = req.params.id;
+    // Update user using userController
+    const updatedUser = await userController.updateUser(username, id);
+    res.status(HTTPCodes.SuccesfulResponse.Ok).json(updatedUser);
+  } catch (error) {
+    SuperLogger.log(`Error updating user: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
+    res.status(HTTPCodes.ServerErrorResponse.InternalError).json({ error: 'Error updating user' });
+  }
+});
 
-  // Running the updateUser function from userController(userControl.mjs)
-  const updatedUser = await userController.updateUser(username, id);
-  console.log("the user was updated", updatedUser)
-  res.status(200).json(updatedUser);
-
-
-})
-
-
-//delete user by id
+// Delete user by id
 USERS.delete('/:id', async (req, res, next) => {
+  try {
+    const id = req.params.id;
 
-  const id = req.params.id;
-
-  // Send a request to the usercontroller to delete user
-  const userDeleted = await userController.deleteUser(id);
-
-  res.status(200).json(userDeleted);
-  // return tasks;
-})
+    // Delete user using userController
+    const userDeleted = await userController.deleteUser(id);
+    res.status(HTTPCodes.SuccesfulResponse.Ok).json(userDeleted);
+  } catch (error) {
+    SuperLogger.log(`Error deleting user: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
+    res.status(HTTPCodes.ServerErrorResponse.InternalError).json({ error: 'Error deleting user' });
+  }
+});
 
 export default USERS;

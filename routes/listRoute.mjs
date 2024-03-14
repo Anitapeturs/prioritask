@@ -1,11 +1,10 @@
 import express from "express";
 import ListController from "../controllers/listControl.mjs";
-import { AppError, errorHandler } from "../modules/errorHandler.mjs";
+import { HTTPCodes } from "../modules/httpConstants.mjs";
+import SuperLogger from "../modules/superLogger.mjs";
 
 const LISTS = express.Router();
 const listController = new ListController();
-
-LISTS.use(errorHandler);
 
 // CREATE A LIST
 LISTS.post('/', async (req, res, next) => {
@@ -16,21 +15,24 @@ LISTS.post('/', async (req, res, next) => {
     // Sending newList information into the createList function inside listController(listControl.js)
     const createdList = await listController.createList(list, userId);
 
-    res.status(200).json(createdList);
+    res.status(HTTPCodes.SuccesfulResponse.Ok).json(createdList);
   } catch (error) {
-    next(new AppError(500, 'Error creating list'));
+    SuperLogger.log(`Error creating list: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
+    res.status(HTTPCodes.ServerErrorResponse.InternalError).json({ error: 'Error creating list' });
   }
 });
 
 // GET ALL OF THE USER'S LISTS
 LISTS.get('/user/:id', async (req, res, next) => {
+  
   try {
     const userId = req.params.id;
     const listsFound = await listController.getLists(userId);
 
-    res.status(200).json(listsFound);
+    res.status(HTTPCodes.SuccesfulResponse.Ok).json(listsFound);
   } catch (error) {
-    next(new AppError(500, 'Error retrieving lists for user'));
+    SuperLogger.log(`Error retrieving lists for user: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
+    res.status(HTTPCodes.ServerErrorResponse.InternalError).json({ error: 'Error retrieving lists for user' });
   }
 });
 
@@ -40,9 +42,10 @@ LISTS.get('/:id', async (req, res, next) => {
     const id = req.params.id;
     const list = await listController.getList(id);
     console.log("the list was found", list);
-    res.status(200).json(list);
+    res.status(HTTPCodes.SuccesfulResponse.Ok).json(list);
   } catch (error) {
-    next(new AppError(500, 'Error retrieving list'));
+    SuperLogger.log(`Error retrieving list: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
+    res.status(HTTPCodes.ServerErrorResponse.InternalError).json({ error: 'Error retrieving list' });
   }
 });
 
@@ -54,9 +57,10 @@ LISTS.put('/:id', async (req, res, next) => {
 
     const updatedList = await listController.updateList(list, listId);
     console.log("the list was updated", updatedList);
-    res.status(200).json(updatedList);
+    res.status(HTTPCodes.SuccesfulResponse.Ok).json(updatedList);
   } catch (error) {
-    next(new AppError(500, 'Error updating list'));
+    SuperLogger.log(`Error updating list: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
+    res.status(HTTPCodes.ServerErrorResponse.InternalError).json({ error: 'Error updating list' });
   }
 });
 
@@ -65,9 +69,10 @@ LISTS.delete('/:id', async (req, res, next) => {
   try {
     const id = req.params.id;
     const listDeleted = await listController.deleteList(id);
-    res.status(200).json(listDeleted);
+    res.status(HTTPCodes.SuccesfulResponse.Ok).json(listDeleted);
   } catch (error) {
-    next(new AppError(500, 'Error deleting list'));
+    SuperLogger.log(`Error deleting list: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
+    res.status(HTTPCodes.ServerErrorResponse.InternalError).json({ error: 'Error deleting list' });
   }
 });
 

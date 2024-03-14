@@ -4,10 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap">
+    <link rel="stylesheet" href="style.css">
     <title>Create User</title>
 </head>
 
 <body>
+    
+    <h1>Sign Up for PrioriTask</h1>
+
     <label for="username">Username</label>
     <input id="username" type="text">
 
@@ -18,16 +23,21 @@
     <input id="password" type="password">
 
     <button id="submit">Submit</button>
+
+    <p id="errorMsg"></p>
+
 </body>
 <script>
 
-    let username = document.getElementById("username")
-    let email = document.getElementById("email")
-    let password = document.getElementById("password")
-    let submit = document.getElementById("submit")
+    const username = document.getElementById("username")
+    const email = document.getElementById("email")
+    const password = document.getElementById("password")
+    const submit = document.getElementById("submit")
+    const errorMsg = document.getElementById("errorMsg")
 
     // when submit is clicked, run a function to save information for database
-    submit.addEventListener("click", () => {
+    submit.addEventListener("click", async () => {
+
         let user = username.value;
         let mail = email.value;
         let pass = password.value;
@@ -48,17 +58,17 @@
                     'content-type': 'application/json'
                 }
             };
-            fetch(url, config)
-                .then((res) => {
-                    if (res) {
-                        //Successfully created, next location login user
-                        window.location.href = 'loginUser.html';
-                    } else {
-                        console.error('Error creating user:', res.statusText);
-                    }
-                })
-                console.error('Error creating user: please fill in all fields');
-        } 
+
+            const response = await fetch(url, config);
+            const data = await response.json();
+
+            if (response.ok) {
+                window.location.href = 'loginUser.html';
+            } else {
+                errorMsg.innerHTML = "Creating user Failed, please make sure to fill in all requested fields"
+            }
+            console.error('Error creating user: please fill in all fields');
+        }
 
 
     });
