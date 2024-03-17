@@ -8,7 +8,10 @@ dotenv.config();
 const dbConnectionString = process.env.DB_CONNECTION_STRING;
 
 const pool = new Pool({
-    connectionString: dbConnectionString
+    connectionString: dbConnectionString,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 class DataHandler {

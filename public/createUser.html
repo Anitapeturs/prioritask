@@ -37,6 +37,9 @@
 
     <button id="submit">Submit</button>
 
+    <h4>Already registered? </h4>
+    <button id="login">Log in</button>
+
     <p id="errorMsg"></p>
 
 </body>
@@ -47,7 +50,11 @@
     const password = document.getElementById("password");
     const submit = document.getElementById("submit");
     const errorMsg = document.getElementById("errorMsg");
+    const login = document.getElementById("login");
 
+    login.addEventListener("click", (evt) => {
+        location.href('loginUser.html')
+    })
     
     // WHEN SUBMIT IS CLICKED, RUN FUNCTION TO SEND USER INFO TO DATABASE
     submit.addEventListener("click", async () => {
