@@ -6,11 +6,17 @@ import SuperLogger from "../modules/superLogger.mjs";
 const LISTS = express.Router();
 const listController = new ListController();
 
+// GET SERVICE WORKER PATH
+LISTS.get('/service-worker.mjs', (req, res) => {
+  const filePath = path.resolve(__dirname, 'public', 'service-worker.mjs');
+  res.sendFile(filePath);
+});
+
 // CREATE A LIST
 LISTS.post('/', async (req, res, next) => {
   try {
     const list = req.body.listTitle;
-    let userId = req.body.userId;
+    let userId = parseInt(req.body.userId);
 
     // Sending newList information into the createList function inside listController(listControl.js)
     const createdList = await listController.createList(list, userId);
@@ -24,7 +30,7 @@ LISTS.post('/', async (req, res, next) => {
 
 // GET ALL OF THE USER'S LISTS
 LISTS.get('/user/:id', async (req, res, next) => {
-  
+
   try {
     const userId = req.params.id;
     const listsFound = await listController.getLists(userId);
@@ -39,10 +45,11 @@ LISTS.get('/user/:id', async (req, res, next) => {
 // GET LIST BY ID
 LISTS.get('/:id', async (req, res, next) => {
   try {
-    const id = req.params.id;
+    const id = parseInt(req.params.id);
     const list = await listController.getList(id);
-    console.log("the list was found", list);
-    res.status(HTTPCodes.SuccesfulResponse.Ok).json(list);
+
+    res.redirect(`https://prioritask.onrender.com/shared.html?listId=${list.id}&listTitle=${list.listTitle}`);
+
   } catch (error) {
     SuperLogger.log(`Error retrieving list: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
     res.status(HTTPCodes.ServerErrorResponse.InternalError).json({ error: 'Error retrieving list' });
@@ -56,7 +63,6 @@ LISTS.put('/:id', async (req, res, next) => {
     const listId = req.params.id;
 
     const updatedList = await listController.updateList(list, listId);
-    console.log("the list was updated", updatedList);
     res.status(HTTPCodes.SuccesfulResponse.Ok).json(updatedList);
   } catch (error) {
     SuperLogger.log(`Error updating list: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);

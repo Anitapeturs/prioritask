@@ -3,9 +3,21 @@
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap">
 <link rel="stylesheet" href="style.css">
-<title>Create User</title>
+<title>Login User</title>
 </head>
-
+<script>
+  if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.mjs')
+              .then(registration => {
+                  console.log('Service Worker registered:', registration);
+              })
+              .catch(error => {
+                  console.error('Service Worker registration failed:', error);
+              });
+      });
+  }
+</script>
 <body>
 
   <h1>Log in</h1>
@@ -33,13 +45,13 @@
 
 
 
-    // When button is clicked, run function to log in 
+    // WHEN BUTTON IS CLICKED, RUN FUNCTION TO LOG IN
     loginUser.onclick = async function () {
 
       let username = loginUsername.value;
       let password = loginPassword.value;
 
-      const url = 'http://localhost:8080/user/login'
+      const url = 'https://prioritask.onrender.com/user/login'
 
       const config = {
         method: 'POST',
@@ -58,6 +70,7 @@
         localStorage.setItem('username', data.username);
         window.location.href = 'startPage.html';
 
+        // RENDER ERROR MESSAGE IF LOGIN FAILED
       } else {
         errorMsg.innerHTML = "Login Failed, please make sure Username and password match"
       }

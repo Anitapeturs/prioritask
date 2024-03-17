@@ -1,9 +1,8 @@
 import DataHandler from "../modules/storage.mjs";
 
 class UserController {
-    // All user functions
-
-    // Create a new user in the database
+    
+    // CREATE A NEW USER
     async createUser(username, email, password) {
         try {
             let response = await DataHandler.insertUser(username, email, password);
@@ -13,7 +12,7 @@ class UserController {
         }
     }
 
-    //checking if user exists by searching for the email in database
+    // CHECK IF A USER EXISTS BY EMAIL
     async userExists(email) {
         try {
             let response = await DataHandler.existingUser(email);
@@ -23,6 +22,7 @@ class UserController {
         }
     }
 
+    // AUTHENTICATE A USER WITH USERNAME AND PASSWORD
     async userAuth(username, password) {
         try {
             let response = await DataHandler.validUser(username, password);
@@ -32,6 +32,7 @@ class UserController {
         }
     }
 
+    // GET USER INFORMATION BY USER ID
     async oneUser(userId) {
         try {
             let response = await DataHandler.getUser(userId);
@@ -41,9 +42,8 @@ class UserController {
         }
     }
 
-
+    // UPDATE THE USERNAME OF A USER BY USERID
     async updateUser(username, id) {
-        // update user in the db
         try {
             console.log("User: ", username, id)
             let response = await DataHandler.editUser(username, id);
@@ -54,8 +54,8 @@ class UserController {
 
     }
 
+    // DELETE A USER BY THE USER ID
     async deleteUser(id) {
-        // Delete an existing user
 
         try {
             console.log("id: ", id)
@@ -67,12 +67,6 @@ class UserController {
         }
     };
 
-
-
 }
-
-
-
-
 
 export default UserController;

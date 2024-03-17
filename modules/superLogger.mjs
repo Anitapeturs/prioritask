@@ -35,24 +35,14 @@ class SuperLogger {
         CRITICAL: 999    // We output only errors. 
     };
 
-    // What level of messages should we be logging.
-    // This field is static 
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/static
     #globalThreshold = SuperLogger.LOGGING_LEVELS.ALL;
 
-    // Structure to keep the misc log functions that get created.
-    // This field is private.
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_properties
     #loggers;
 
-    //#region Using a variation on the singelton pattern
-    // https://javascriptpatterns.vercel.app/patterns/design-patterns/singleton-pattern
-    // This field is static 
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/static
     static instance = null;
 
     constructor() {
-        // This constructor will allways return a refrence to the first instance created. 
+        // this constructor will allways return a refrence to the first instance created. 
         if (SuperLogger.instance == null) {
             SuperLogger.instance = this;
             this.#loggers = [];
@@ -81,9 +71,6 @@ class SuperLogger {
 
     createLimitedHTTPRequestLogger(options) {
 
-        // if no level is threshold, we default to NORMAL.
-        // We are using the logical or (||) 
-        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Expressions_and_Operators#logical_operators
         const threshold = options.threshold || SuperLogger.LOGGING_LEVELS.NORMAL;
 
         // Returning an anonymous function that binds local scope.
@@ -101,17 +88,13 @@ class SuperLogger {
     }
 
     #LogHTTPRequest(req, res, next) {
-        // These are just some variables that we extract to show the point 
-        // TODO: Extract and format information important for your dev process. 
         let type = req.method;
         const path = req.originalUrl;
         const when = new Date().toLocaleTimeString();
 
-        // TODO: This is just one simple thing to create structure and order. Can you do more?
         type = colorize(type);
         this.#writeToLog([when, type, path].join(" "));
 
-        // On to the next handler function
         next();
     }
 
@@ -119,9 +102,12 @@ class SuperLogger {
 
         msg += "\n";
         console.log(msg);
-        ///TODO: The files should be based on current date.
-        // ex: 300124.log
-        fs.appendFile("./log.txt", msg, { encoding: "utf8" }, (err) => { });
+        const currentDate = new Date();
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0'); 
+        const day = String(currentDate.getDate()).padStart(2, '0');
+        const fileName = `${day}${month}${year}.log`;
+        fs.appendFile(fileName, msg, { encoding: "utf8" }, (err) => { });
     }
 }
 

@@ -2,300 +2,438 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to Prioritask</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap">
-  <script src="https://kit.fontawesome.com/4be0ef7ca6.js" crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Prioritask</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald:400,700&display=swap">
+    <script src="https://kit.fontawesome.com/4be0ef7ca6.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.mjs')
+                    .then(registration => {
+                        console.log('Service Worker registered:', registration);
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
 </head>
 
 
 <body>
-  <i id="userSettings"class="fa-solid fa-user-pen"></i>
-  <p id="currentDate"></p>
-  <h1 id="dayOfWeek"></h1>
+    <i id="userSettings" class="fa-solid fa-user-pen"></i>
 
-  <div class="lists"></div></br>
-  
-  <button id="logout" class="logout">Log Out</button>
+    <select id="languageSelection">
+        <option value="en">English</option>
+        <option value="no">Norwegian</option>
+        <option value="is">Icelandic</option>
+    </select>
+    <i id="newList" class="fa-solid fa-plus"></i>
+    <p id="currentDate"></p>
+    <h1 id="dayOfWeek"></h1>
 
-  <script>
+    <div class="lists"></div></br>
 
-document.addEventListener('DOMContentLoaded', function () {
-    const token = localStorage.getItem('token');
-    const userId = localStorage.getItem('userId');
-    const username = localStorage.getItem('username');
-    const lists = document.querySelector('.lists');
-    const logout = document.getElementById('logout');
-    const userSettings = document.getElementById('userSettings');
+    <button id="logout" class="logout">Log Out</button>
 
-    const deleteConfig = {
-        method: 'DELETE',
-        headers: {
-            'content-type': 'application/json',
-            'Authorization': `Bearer ${token}`
+
+    <script>
+
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('userId');
+        const username = localStorage.getItem('username');
+        const lists = document.querySelector('.lists');
+        const logout = document.getElementById('logout');
+        const userSettings = document.getElementById('userSettings');
+        const languageSelection = document.getElementById("languageSelection");
+        const savedLanguage = localStorage.getItem("lang");
+        const dayOfWeekElement = document.getElementById('dayOfWeek');
+        const currentDateElement = document.getElementById('currentDate');
+        const currentDay = localStorage.getItem("currentDay");
+        const currentDate = localStorage.getItem("currentDate");
+        const newList = document.getElementById("newList");
+
+        // REDIRECT IF TOKEN DOESN'T EXIST
+        if (!token) {
+            window.location.href = 'loginUser.html';
         }
-    };
 
-    if (!token) {
-        window.location.href = 'loginUser.html';
-    }
+        // MAKING SURE THE LANGUAGE SELECTION STAYS FOR THE USER
+        if (!savedLanguage) {
+            localStorage.setItem("lang", languageSelection.value);
+        } else {
+            languageSelection.value = savedLanguage;
+        }
 
-    const dayOfWeekElement = document.getElementById('dayOfWeek');
-    const currentDateElement = document.getElementById('currentDate');
+        // FETCH PREFERRED LANGUAGE
+        function fetchTranslations(language) {
+            fetch(`/translations?lang=${language}`)
+                .then(response => response.json())
+                .then(data => {
+                    dayOfWeekElement.textContent = data[currentDay];
+                    document.getElementById('currentDate').textContent = data.currentDate;
+                    logout.textContent = data.logOut;
+                })
+                .catch(error => console.error('Error fetching translations:', error));
+        }
 
-    fetchLists();
+        // CHANGE LANGUAGE DEPENDING ON SELECTION
+        languageSelection.addEventListener('change', function () {
+            const selectedLanguage = this.value;
+            localStorage.setItem("lang", selectedLanguage);
+            fetchTranslations(selectedLanguage);
 
-    fetch('http://localhost:8080/calendar')
-        .then(res => res.json())
-        .then(data => {
-            dayOfWeekElement.textContent = `${data.currentDayOfWeek}'s Todos`;
-            currentDateElement.textContent = `Date: ${data.currentDate}`;
-        })
-        .catch(error => console.error('Error:', error));
+        });
 
-    function fetchLists() {
-        fetch(`http://localhost:8080/list/user/${userId}`)
-            .then((res) => res.json())
-            .then(loopList => {
-                loopList.forEach(thisList => {
-                    const listContainer = document.createElement("div");
-                    listContainer.className = "list-container";
+        fetchTranslations(savedLanguage);
 
-                    const theList = document.createElement("div");
-                    theList.id = parseInt(thisList.id);
-                    theList.className = "list";
-                    theList.textContent = thisList.listTitle;
-                    theList.className = "list-title";
-                    theList.style.cursor = "pointer";
+        
+        document.addEventListener('DOMContentLoaded', function () {
 
-                    const newTask = document.createElement("input");
-                    newTask.id = parseInt(thisList.id);
-                    newTask.className = "newTask";
-                    newTask.placeholder = "Add new task";
+          // EASIER USE FOR DELETE CONFIG, SAVING IN GLOBAL VARIABLE
+            const deleteConfig = {
+                method: 'DELETE',
+                headers: {
+                    'content-type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            };
 
-                    const listButtons = document.createElement('div');
-                    listButtons.className = "listButtons";
+            
+            // FETCH CALENDAR DATA
+            fetch('https://prioritask.onrender.com/calendar')
+                .then(res => res.json())
+                .then(data => {
+                    localStorage.setItem("currentDate", data.currentDate);
+                    localStorage.setItem("currentDay", data.currentDayOfWeek);
+                })
+                .catch(error => console.error('Error:', error));
+                
+                fetchLists();
 
-                    const deleteList = document.createElement("div");
-                    deleteList.id = parseInt(thisList.id);
-                    deleteList.className = "deleteList";
-                    deleteList.innerHTML = `<i class="fa fa-trash-o" aria-hidden="true" title="Delete List"></i>`;
-                    deleteList.style.cursor = "pointer";
+            // FETCH AND DISPLAY LISTS & TASKS
+                function fetchLists() {
+                fetch(`https://prioritask.onrender.com/list/user/${userId}`)
+                    .then((res) => res.json())
+                    .then(loopList => {
 
-                    const editList = document.createElement("div");
-                    editList.id = parseInt(thisList.id);
-                    editList.className = "editList";
-                    editList.innerHTML = `<i class="fa fa-pencil" aria-hidden="true" title="Edit List"></i>`;
-                    editList.style.cursor = "pointer";
+                        console.log(loopList)
 
-                    listButtons.appendChild(editList);
-                    listButtons.appendChild(deleteList);
-                    listContainer.append(listButtons);
-                    listContainer.append(theList);
-                    listContainer.append(newTask);
+                        if (loopList.length == 0) {
+                            const url = `https://prioritask.onrender.com/list`
+                            const config = {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify({ listTitle: username, userId: userId })
+                            };
 
-                    fetch(`http://localhost:8080/task/list/${thisList.id}`)
-                        .then((res) => res.json())
-                        .then(tasks => {
-                            const taskContainer = document.createElement("div");
-                            taskContainer.className = "task-container";
+                            try {
+                                let response = fetch(url, config)
+                                location.reload()
 
-                            tasks.forEach(listTask => {
-                                const theTask = document.createElement("div");
-                                theTask.id = listTask.id;
-                                theTask.className = "task";
-                                theTask.textContent = listTask.task;
-                                theTask.style.cursor = "pointer";
 
-                                const deleteTask = document.createElement("button");
-                                deleteTask.id = parseInt(listTask.id);
-                                deleteTask.className = "deleteTask";
-                                deleteTask.innerHTML = `<i class="fa fa-trash-o" aria-hidden="true" title="Delete Task"></i>`;
-                                deleteTask.style.cursor = "pointer";
+                                if (!response.ok) {
+                                    console.error('Failed to create list');
+                                }
+                            } catch (error) {
+                                console.error('Error updating task:', error);
+                            }
+                        }
 
-                                const checkbox = document.createElement("input");
-                                checkbox.type = "checkbox";
-                                checkbox.className = "checkbox";
-                                checkbox.style.cursor = "pointer";
-                                checkbox.checked = listTask.completed;
+                        // CREATING THE LIST ELEMENTS
+                        loopList.forEach(thisList => {
 
-                                checkbox.addEventListener('change', async () => {
-                                    const url = `http://localhost:8080/task/completed/${listTask.id}`;
-                                    const config = {
-                                        method: 'PUT',
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                            'Authorization': `Bearer ${token}`
-                                        },
-                                        body: JSON.stringify({ completed: checkbox.checked })
-                                    };
+                          // STORING THE ELEMENTS IN A LIST CONTAINER
+                            const listContainer = document.createElement("div");
+                            listContainer.className = "list-container";
 
-                                    try {
-                                        const response = await fetch(url, config);
-                                        if (!response.ok) {
-                                            console.error('Failed to update task:', response.status);
-                                        }
-                                    } catch (error) {
-                                        console.error('Error updating task:', error);
-                                    }
-                                });
+                            const theList = document.createElement("div");
+                            theList.id = parseInt(thisList.id);
+                            theList.className = "list";
+                            theList.textContent = thisList.listTitle;
+                            theList.className = "list-title";
 
-                                taskContainer.appendChild(checkbox);
-                                taskContainer.appendChild(deleteTask);
-                                taskContainer.appendChild(theTask);
+                            const newTask = document.createElement("input");
+                            newTask.id = parseInt(thisList.id);
+                            newTask.className = "newTask";
+                            newTask.placeholder = "Add new task";
 
-                                theTask.addEventListener('click', (evt) => {
-                                    const taskToEdit = evt.target.closest('.task');
-                                    if (taskToEdit) {
-                                        theTask.innerHTML = `<input id="taskInput" type="text" value="${theTask.textContent}" /> <button id="doneTask"'>&#10003;</button>`;
-                                        const input = document.getElementById("taskInput");
-                                        const done = document.getElementById("doneTask");
+                            const listButtons = document.createElement('div');
+                            listButtons.className = "listButtons";
 
-                                        input.focus();
+                            const deleteList = document.createElement("div");
+                            deleteList.id = parseInt(thisList.id);
+                            deleteList.className = "deleteList";
+                            deleteList.innerHTML = `<i class="fa fa-trash-o" aria-hidden="true" title="Delete List"></i>`;
+                            deleteList.style.cursor = "pointer";
 
-                                        done.addEventListener('click', async (evt) => {
-                                            const updatedTask = input.value;
-                                            const taskId = taskToEdit.getAttribute('id');
-                                            const url = `http://localhost:8080/task/${taskId}`;
+                            const editList = document.createElement("div");
+                            editList.id = parseInt(thisList.id);
+                            editList.className = "editList";
+                            editList.innerHTML = `<i class="fa fa-pencil" aria-hidden="true" title="Edit List"></i>`;
+                            editList.style.cursor = "pointer";
 
+                            // CREATING A SHARABLE LINK FOR EACH LIST
+                            const shareableLink = `${window.location.origin}/list/${thisList.id}`;;
+
+                            const shareLinkButton = document.createElement("button");
+                            shareLinkButton.className = "share";
+                            shareLinkButton.innerHTML = '<i class="fa-solid fa-share"></i>';
+                            shareLinkButton.addEventListener('click', () => {
+
+                              // COPY LINK TO CLIPBOARD
+                                navigator.clipboard.writeText(shareableLink)
+                                    .then(() => alert('List Link copied to clipboard'))
+                                    .catch(err => console.error('Failed to copy link: ', err));
+                            });
+
+                            listContainer.appendChild(shareLinkButton);
+                            listButtons.appendChild(editList);
+                            listButtons.appendChild(deleteList);
+                            listContainer.append(listButtons);
+                            listContainer.append(theList);
+                            listContainer.append(newTask);
+
+                            // FETCH THE TASKS FOR THE SPECIFIC LIST
+                            fetch(`https://prioritask.onrender.com/task/list/${thisList.id}`)
+                                .then((res) => res.json())
+                                .then(tasks => {
+
+                                  // STORING THE ELEMENTS IN A TASK CONTAINER
+                                    const taskContainer = document.createElement("div");
+                                    taskContainer.className = "task-container";
+
+                                    tasks.forEach(listTask => {
+
+                                        const theTask = document.createElement("div");
+                                        theTask.id = listTask.id;
+                                        theTask.className = "task";
+                                        theTask.textContent = listTask.task;
+
+                                        const deleteTask = document.createElement("button");
+                                        deleteTask.id = parseInt(listTask.id);
+                                        deleteTask.className = "deleteTask";
+                                        deleteTask.innerHTML = `<i class="fa fa-trash-o" aria-hidden="true" title="Delete Task"></i>`;
+                                        deleteTask.style.cursor = "pointer";
+
+                                        const checkbox = document.createElement("input");
+                                        checkbox.type = "checkbox";
+                                        checkbox.className = "checkbox";
+                                        checkbox.style.cursor = "pointer";
+                                        checkbox.checked = listTask.completed;
+
+                                        // FUNCTIONAL UPDATABLE CHECKBOX FOR TASK
+                                        checkbox.addEventListener('change', async () => {
+                                            const url = `https://prioritask.onrender.com/task/completed/${listTask.id}`;
                                             const config = {
                                                 method: 'PUT',
                                                 headers: {
                                                     'Content-Type': 'application/json',
                                                     'Authorization': `Bearer ${token}`
                                                 },
-                                                body: JSON.stringify({ task: updatedTask })
+                                                body: JSON.stringify({ completed: checkbox.checked })
                                             };
 
                                             try {
                                                 const response = await fetch(url, config);
+                                                if (!response.ok) {
+                                                    console.error('Failed to update task:', response.status);
+                                                }
+                                            } catch (error) {
+                                                console.error('Error updating task:', error);
+                                            }
+                                        });
+
+                                        taskContainer.appendChild(checkbox);
+                                        taskContainer.appendChild(deleteTask);
+                                        taskContainer.appendChild(theTask);
+
+                                        // EDIT INPUT AVAILABLE WHEN TASK IS CLICKED
+                                        theTask.addEventListener('click', (evt) => {
+                                            const taskToEdit = evt.target.closest('.task');
+                                            if (taskToEdit) {
+                                                theTask.innerHTML = `<input id="taskInput" type="text" value="${theTask.textContent}" /> <button id="doneTask"'>&#10003;</button>`;
+                                                const input = document.getElementById("taskInput");
+                                                const done = document.getElementById("doneTask");
+
+                                                // MAKING SURE THE INPUT IS USABLE INSTANTLY
+                                                input.focus();
+
+                                                done.addEventListener('click', async (evt) => {
+                                                    const updatedTask = input.value;
+                                                    const taskId = taskToEdit.getAttribute('id');
+                                                    const url = `https://prioritask.onrender.com/task/${taskId}`;
+
+                                                    const config = {
+                                                        method: 'PUT',
+                                                        headers: {
+                                                            'Content-Type': 'application/json',
+                                                            'Authorization': `Bearer ${token}`
+                                                        },
+                                                        body: JSON.stringify({ task: updatedTask })
+                                                    };
+
+                                                    try {
+                                                        const response = await fetch(url, config);
+                                                        if (response.ok) {
+                                                            theTask.innerHTML = updatedTask;
+                                                        }
+                                                    } catch (error) {
+                                                        console.error('Could not delete task:', error);
+                                                    }
+                                                });
+                                            }
+                                        });
+
+                                        deleteTask.addEventListener('click', async () => {
+                                            const taskId = deleteTask.id;
+                                            const url = `https://prioritask.onrender.com/task/${taskId}`;
+
+                                            try {
+                                                const response = await fetch(url, deleteConfig);
                                                 if (response.ok) {
-                                                    theTask.innerHTML = updatedTask;
+                                                    window.location.reload();
                                                 }
                                             } catch (error) {
                                                 console.error('Could not delete task:', error);
                                             }
                                         });
-                                    }
-                                });
+                                    });
 
-                                deleteTask.addEventListener('click', async () => {
-                                    const taskId = deleteTask.id;
-                                    const url = `http://localhost:8080/task/${taskId}`;
+                                    // ADDING TASKS TO LIST
+                                    listContainer.append(taskContainer);
+                                })
+                                .catch(error => console.error('Error fetching tasks:', error));
 
-                                    try {
-                                        const response = await fetch(url, deleteConfig);
-                                        if (response.ok) {
+                            lists.append(listContainer);
+
+                            deleteList.addEventListener('click', async () => {
+                                const listId = deleteList.id;
+                                const taskUrl = `https://prioritask.onrender.com/task/list/${listId}`;
+                                const listUrl = `https://prioritask.onrender.com/list/${listId}`;
+
+                                try {
+                                    const taskResponse = await fetch(taskUrl, deleteConfig);
+                                    if (taskResponse.ok) {
+                                        const listResponse = await fetch(listUrl, deleteConfig);
+                                        if (listResponse.ok) {
                                             window.location.reload();
                                         }
-                                    } catch (error) {
-                                        console.error('Could not delete task:', error);
+                                    } else {
+                                        console.error('Failed to delete list', taskResponse.status);
                                     }
-                                });
+                                } catch (error) {
+                                    console.error('Could not delete list:', error);
+                                }
                             });
 
-                            listContainer.append(taskContainer);
-                        })
-                        .catch(error => console.error('Error fetching tasks:', error));
+                            editList.addEventListener('click', () => {
+                                const updatedList = prompt('Enter new list name:');
+                                const listId = editList.id;
+                                const url = `https://prioritask.onrender.com/list/${listId}`;
 
-                    lists.append(listContainer);
+                                const config = {
+                                    method: 'PUT',
+                                    headers: {
+                                        'content-type': 'application/json',
+                                        'Authorization': `Bearer ${token}`
+                                    },
+                                    body: JSON.stringify({ listTitle: updatedList })
+                                };
 
-                    deleteList.addEventListener('click', async () => {
-                        const listId = deleteList.id;
-                        const taskUrl = `http://localhost:8080/task/list/${listId}`;
-                        const listUrl = `http://localhost:8080/list/${listId}`;
+                                fetch(url, config)
+                                    .then(response => {
+                                        if (response.ok) {
+                                            theList.textContent = updatedList;
+                                        } else {
+                                            console.error('Error updating list:', response.status);
+                                        }
+                                    })
+                                    .catch(error => console.error('Error updating list:', error));
+                            });
 
-                        try {
-                            const taskResponse = await fetch(taskUrl, deleteConfig);
-                            if (taskResponse.ok) {
-                                const listResponse = await fetch(listUrl, deleteConfig);
-                                if (listResponse.ok) {
-                                    window.location.reload();
+                            newTask.addEventListener('keypress', async (evt) => {
+                                if (evt.key === "Enter") {
+                                    const createdTask = newTask.value;
+                                    const listId = newTask.id;
+                                    const url = `https://prioritask.onrender.com/task`;
+
+                                    const config = {
+                                        method: 'POST',
+                                        headers: {
+                                            'content-type': 'application/json',
+                                            'Authorization': `Bearer ${token}`
+                                        },
+                                        body: JSON.stringify({ task: createdTask, listId: listId, userId: userId })
+                                    };
+
+                                    fetch(url, config)
+                                        .then(response => {
+                                            if (response.ok) {
+                                                location.reload();
+                                            } else {
+                                                console.error('Error creating task:');
+                                            }
+                                        })
+                                        .catch(error => console.error('Error creating task:', error));
                                 }
-                            } else {
-                                console.error('Failed to delete list', taskResponse.status);
-                            }
-                        } catch (error) {
-                            console.error('Could not delete list:', error);
-                        }
+                            });
+                        });
                     });
+            }
 
-                    editList.addEventListener('click', () => {
-                        const updatedList = prompt('Enter new list name:');
-                        const listId = editList.id;
-                        const url = `http://localhost:8080/list/${listId}`;
-
-                        const config = {
-                            method: 'PUT',
-                            headers: {
-                                'content-type': 'application/json',
-                                'Authorization': `Bearer ${token}`
-                            },
-                            body: JSON.stringify({ listTitle: updatedList })
-                        };
-
-                        fetch(url, config)
-                            .then(response => {
-                                if (response.ok) {
-                                    theList.textContent = updatedList;
-                                } else {
-                                    console.error('Error updating list:', response.status);
-                                }
-                            })
-                            .catch(error => console.error('Error updating list:', error));
-                    });
-
-                    newTask.addEventListener('keypress', async (evt) => {
-                        if (evt.key === "Enter") {
-                            const createdTask = newTask.value;
-                            const listId = newTask.id;
-                            const url = `http://localhost:8080/task`;
-
-                            const config = {
-                                method: 'POST',
-                                headers: {
-                                    'content-type': 'application/json',
-                                    'Authorization': `Bearer ${token}`
-                                },
-                                body: JSON.stringify({ task: createdTask, listId: listId, userId: userId })
-                            };
-
-                            fetch(url, config)
-                                .then(response => {
-                                    if (response.ok) {
-                                        location.reload();
-                                    } else {
-                                        console.error('Error creating task:');
-                                    }
-                                })
-                                .catch(error => console.error('Error creating task:', error));
-                        }
-                    });
-                });
+            // OPEN USER SETTINGS ONCLICK
+            userSettings.addEventListener('click', () => {
+                window.location.href = 'userSettings.html';
             });
-    }
 
-    userSettings.addEventListener('click', () => {
-        window.location.href = 'userSettings.html';
-    });
+            // ADD NEW LIST BUTTON
+            newList.addEventListener('click', async () => {
 
-    lists.addEventListener('click', (evt) => {
-        const clickedList = evt.target.closest('.list');
-        if (clickedList) {
-            const listId = clickedList.id;
-            localStorage.setItem("listId", listId);
-        }
-    });
+                const url = `https://prioritask.onrender.com/list`;
 
-    logout.addEventListener('click', () => {
-        localStorage.removeItem("token");
-        window.location.href = 'loginUser.html';
-    });
-});
-  </script>
+                const config = {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ listTitle: `${username}'s PrioriTask`, userId: userId })
+                };
+
+                try {
+                    const response = await fetch(url, config);
+                    if (response.ok) {
+                        location.reload();
+                    }
+                } catch (error) {
+                    console.error('Could not delete task:', error);
+                }
+            });
+
+            // CATCHING LIST ID ONCLICK
+            lists.addEventListener('click', (evt) => {
+                const clickedList = evt.target.closest('.list');
+                if (clickedList) {
+                    const listId = clickedList.id;
+                    localStorage.setItem("listId", listId);
+                }
+            });
+
+            logout.addEventListener('click', () => {
+                localStorage.removeItem("token");
+                window.location.href = 'loginUser.html';
+            });
+        });
+    </script>
 </body>
 
 </html>

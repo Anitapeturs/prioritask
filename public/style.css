@@ -1,14 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: rgb(255, 218, 218);
+    font-family: Didot, serif;
+    background-color: rgb(249, 221, 212);
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
 #userSettings {
-    font-size: 48px; 
-    color: rgb(156, 98, 98); 
+    font-size: 48px;
+    color: rgb(218, 149, 119); 
     cursor: pointer;
     position: absolute;
     top: 20px;
@@ -17,14 +19,26 @@ body {
 }
 
 #userSettings:hover {
-    color: #fff; 
+    color: white; 
 }
-   
 
+#newList {
+    font-size: 55px;
+    color: rgb(218, 149, 119); 
+    cursor: pointer;
+    position: absolute;
+    right: 15px;
+    bottom: 15px;
+    transition: transform 0.3s ease;
+}
+
+#newList:hover {
+    color: white; 
+}
 
 #submit {
-    background-color: rgb(156, 98, 98);
-    color: #fff;
+    background-color: rgb(218, 149, 119);
+    color: white; 
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
@@ -32,33 +46,31 @@ body {
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
+
 #submit:hover {
-    background-color: #fff;
-    color: rgb(156, 98, 98);
+    background-color: white;
+    color: rgb(218, 165, 119); 
 }
 
 #backArrow {
     font-size: 48px;
-    color: rgb(156, 98, 98);
+    color: rgb(218, 149, 119);
     cursor: pointer;
     transition: transform 0.3s ease;
-    position: absolute; 
-    left: 20px; 
-    top: 20px; 
+    position: absolute;
+    left: 20px;
+    top: 20px;
 }
 
 #backArrow:hover {
     transform: scale(1.2);
 }
 
-
-
 #deleteUser {
     position: relative;
     left: 150px;
-    background-color: #fff;
-    color: rgb(156, 98, 98);
-    margin-bottom: 20px;
+    background-color: rgb(218, 149, 119);  
+    color: white; 
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
@@ -66,74 +78,86 @@ body {
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
+
 #deleteUser:hover {
-    background-color: rgb(152, 17, 9);
-    color: #fff;
+    background-color: rgb(152, 29, 29); 
+    color: white;
 }
 
 #errorMsg {
-    color: red;
+    color: rgb(218, 149, 119); 
     margin-top: 10px;
 }
 
 input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 2px solid rgb(221, 173, 173);
-            border-radius: 5px;
-            font-size: 16px;
-            color: rgb(156, 98, 98);
-        }
+input[type="email"],
+input[type="password"] {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 2px solid rgb(218, 149, 119); 
+    border-radius: 5px;
+    font-size: 16px;
+    color: rgb(218, 149, 119); 
+}
 
-        label {
-            color: rgb(156, 98, 98);
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
+label {
+    font-family: Didot, serif;
+    color: rgb(218, 149, 119);
+    font-size: 24px;
+    margin-bottom: 5px;
+}
 
- h1 {
-    color: rgb(156, 98, 98);
-    font-family: 'Pacifico', cursive;
+h1 {
+    font-family: 'Great Vibes', cursive;
+    font-size: 60px;
+    color: rgb(218, 149, 119); 
+}
+
+#listName {
+    font-family: Didot, serif;
+    font-size: 46px;
+    color: rgb(218, 149, 119); 
 }
 
 #currentDate {
-    color: rgb(156, 98, 98);
+    color: rgb(218, 149, 119); 
 }
 
 .list-title {
     position: relative;
-    top: -10px;
+    top: -25px;
+    margin: auto;
+    width: 50%;
     font-size: 38px;
-    color: rgb(156, 98, 98);
+    color: rgb(218, 149, 119);  
+    text-align: center;
 }
 
 #taskInput {
-    background: rgb(255, 240, 240);
+    background: rgb(249, 221, 212); 
     padding: 5px;
-    border: 1px solid rgb(221, 173, 173);
+    border: 1px solid rgb(218, 149, 119);  
     border-radius: 4px;
     width: 80px;
     font-size: 12px;
-    color: rgb(156, 98, 98);
+    color: rgb(218, 149, 119);  
     margin: 0;
 }
 
 #doneTask {
-    background: rgb(255, 240, 240);
+    background: rgb(249, 221, 212);
     padding: 5px;
-    border: 1px solid rgb(221, 173, 173);
+    border: 1px solid rgb(218, 149, 119);   
     border-radius: 4px;
     font-size: 12px;
-    color: rgb(156, 98, 98);
+    color: rgb(218, 149, 119);   
     margin: 0;
     cursor: pointer;
 }
 
 .newList {
-    background: rgb(156, 98, 98);
-    color: #fff;
+    background: rgb(218, 149, 119); 
+    color: #F5FFFE; 
     padding: 10px;
     cursor: pointer;
     border: none;
@@ -146,81 +170,13 @@ input[type="text"],
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
-    ;
 }
 
-.list-container {
-    background: rgb(255, 240, 240);
-    padding: 20px;
-    margin: 20px;
-    width: 250px;
-    border: 3px solid rgb(221, 173, 173);
-    border-top-left-radius: 130px;
-    border-top-right-radius: 12px;
-    border-bottom-right-radius: 9px;
-    border-bottom-left-radius: 9px;
-    box-shadow: 0 4px 8px rgba(156, 98, 98, 0.2);
-    transition: transform 0.3s ease-in-out;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.list-container:hover {
-    transform: scale(1.05);
-}
-
-.list h2 {
-    position: relative;
-    top: -20px;
-    margin: 20px;
-    font-size: 38px;
-    color: rgb(156, 98, 98);
-}
-
-.newTask {
-    background: rgb(255, 218, 218);
-    padding: 8px;
-    margin: 5px 0;
-    border: 2px solid rgb(255, 255, 255);
-    border-radius: 5px;
-    width: 180px;
-    font-size: 14px;
-    color: rgb(156, 98, 98);
-    transition: border-color 0.3s ease-in-out;
-}
-
-.newTask:focus {
-    outline: none;
-    border-color: rgb(156, 98, 98);
-}
-
-.task-container {
-    display: flex;
-    display: inline-block;
-    flex-direction: column;
-}
-
-.task {
-    display: flex;
-    color: rgb(156, 98, 98);
-    font-size: 16px;
-}
-
-.task h4 {
-    position: sticky;
-    flex-wrap: wrap;
-    top: 0px;
-    margin: 0;
-}
-
-.logout,
 .userSettings,
 .editList,
 .deleteList {
-    background: rgb(156, 98, 98);
-    color: #fff;
+    background: rgb(218, 149, 119); 
+    color: white; 
     padding: 8px;
     cursor: pointer;
     border: none;
@@ -232,44 +188,139 @@ input[type="text"],
     justify-content: left;
 }
 
-.logout:hover,
 .userSettings:hover,
-.editList:hover,
-.deleteList:hover
- {
-    background: #fff;
-    color: rgb(156, 98, 98);
+.editList:hover {
+    background: white; 
+    color: rgb(218, 149, 119); 
+}
+
+.logout{
+    position: absolute;
+    top:20px;
+    left:20px;
+    background: rgb(218, 149, 119); 
+    color: white; 
+    padding: 8px;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    display: flex;
+    font-size: 16px;
+    transition: background 0.3s ease-in-out;
+}
+
+.logout:hover{
+    background: white; 
+    color: rgb(218, 149, 119); 
+}
+
+.share {
+    position: relative;
+    top: -10px;
+    left: 270px;
+    background: none; 
+    color: rgb(218, 149, 119); 
+    padding: 8px;
+    width: 30%;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    display: flex;
+    font-size: 20px;
+    transition: background 0.3s ease-in-out;
+    text-align: center;
+}
+
+
+
+.share:hover {
+    color: white
 }
 
 .deleteList {
     position: relative;
-    top: 5px;
-    left: -165px;
+    top: -25px;
+    left: -320px;
     border-radius: 50px;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 10px;
     display: flex;
     flex-direction: row;
+}
 
+.deleteList:hover {
+    background: rgb(152, 29, 29); 
+    color: white;
 }
 
 .editList {
     position: relative;
-    top: -30px;
-    left: -100px;
+    top: -65px;
+    left: -25px;
     border-radius: 50px;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 10px;
     display: flex;
     flex-direction: row;
 }
 
+.list-container {
+    background: rgb(249, 231, 225);
+    padding: 20px;
+    margin: 20px;
+    width: 300px;
+    border: 3px solid white;   
+    border-top-left-radius: 130px;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 9px;
+    border-bottom-left-radius: 9px;
+    box-shadow: 0 4px 8px rgba(85, 115, 106, 0.2); 
+    transition: transform 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+.newTask {
+    margin: auto;
+    padding: 10px;
+    background: white; 
+    border: 2px solid rgb(250, 214, 198);
+    border-radius: 50px;
+    font-size: 14px;
+    color: rgb(218, 149, 119);   
+    text-align: center;
+    transition: border-color 0.3s ease-in-out;
+}
+
+.newTask:focus {
+    outline: none;
+    border-color: rgb(218, 149, 119); 
+}
+
+.task-container {
+    max-width: 210px;
+    display: flex;
+    display: inline-block;
+    flex-direction: column;
+}
+
+.task {
+    font-family: Didot, serif;
+    word-wrap: break-word;
+    position: relative;
+    top: -8px;
+    left: 50px;
+    color: rgb(218, 149, 119);  
+    font-size: 24px;
+    cursor: pointer;
+}
+
 .deleteTask {
     position: relative;
-    top: 25px;
-    left: 115px;
-    background: rgb(255, 240, 240);
-    color: #541818;
+    top: 17px;
+    left: 250px;
+    background: none;
+    color: rgb(152, 29, 29); 
     cursor: pointer;
     border: none;
     border-radius: 40px;
@@ -286,14 +337,13 @@ input[type="text"],
 
 .checkbox {
     position: relative;
-    top: 30px;
-    left: -85px;
+    top: 24px;
     appearance: none;
     width: 20px;
     height: 20px;
-    border: 2px solid rgb(221, 173, 173);
+    border: 2px solid rgb(218, 149, 119);   
     border-radius: 50%;
-    background-color: rgb(255, 240, 240);
+    background-color: white; 
     cursor: pointer;
     position: relative;
     border-radius: 40px;
@@ -301,23 +351,9 @@ input[type="text"],
     transition: background 0.3s ease-in-out, border 0.3s ease-in-out, transform 0.2s ease-in-out;
 }
 
-.checkbox::before {
-    transition: color 0.3s ease-in-out;
-    font-size: 12px;
-    color: rgb(156, 98, 98);
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-}
 
-.checkbox:checked::before {
-    opacity: 2;
-}
 
 .checkbox:checked {
-    background-color: rgb(221, 173, 173);
-    border-color: rgb(156, 98, 98);
-    color: rgb(255, 240, 240);
+    background: rgb(218, 149, 119);  
+    border-color: white;
 }
