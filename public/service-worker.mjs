@@ -5,6 +5,7 @@ const urlsToCache = [
   '/createUser.html',
   '/loginUser.html',
   '/userSettings.html',
+  '/shared.html',
   '/style.css',
 ];
 
