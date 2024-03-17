@@ -10,21 +10,21 @@ const Auth = async (req, res, next) => {
     const password = req.body.password;
     const username = req.body.username;
 
-    // hashing the password
+    // HASHING THE PASSWORD
     const hashed = crypto.createHash('sha256').update(password).digest('hex');
 
     try {
-        // Check if the user exists and credentials are valid
+        // CHECK IF THE USER EXISTS AND CREDENTIALS ARE VALID
         const authUser = await userController.userAuth(username, hashed);
 
         if (!authUser) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        // if authentication is successful, create JWT token
+        // IF AUTHENTICATION IS SUCCESSFUL, CREATE JWT TOKEN
         const token = jwt.sign({ userId: authUser.id, username: authUser.username }, secretKey, { expiresIn: '1h' });
 
-        // attach the authenticated user and token to the request
+        // ATTACH THE AUTHENTICATED USER AND TOKEN TO THE REQUEST
         req.authUser = authUser;
         req.token = token;
 

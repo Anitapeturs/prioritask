@@ -2,10 +2,10 @@
 import pg from "pg";
 const { Pool } = pg;
 import dotenv from 'dotenv';
+import SuperLogger from './SuperLogger.mjs'; 
 dotenv.config();
 
 const dbConnectionString = process.env.DB_CONNECTION_STRING;
-
 
 const pool = new Pool({
     connectionString: dbConnectionString
@@ -16,323 +16,217 @@ class DataHandler {
     // --- User queries ---
 
     async insertUser(username, email, password) {
-
-        // Connect to database
-        const client = await pool.connect();
-        let results = null;
-
         try {
-            results = await client.query('INSERT INTO "public"."users"("username", "email", "password") VALUES($1, $2, $3) RETURNING *;', [username, email, password]);
-            results = results.rows[0]
+            const client = await pool.connect();
+            const results = await client.query('INSERT INTO "public"."users"("username", "email", "password") VALUES($1, $2, $3) RETURNING *;', [username, email, password]);
             client.end();
-            return results;
-        } catch (err) {
-            client.end();
-            console.error(err.message);
+            return results.rows[0];
+        } catch (error) {
+            SuperLogger.log(`Error inserting user: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
         }
     }
 
     async existingUser(email) {
-
-        const client = await pool.connect();
-        let results = null;
-
         try {
-            results = await client.query('SELECT * FROM "public"."users" WHERE email = $1', [email]);
-            results = results.rows[0];
+            const client = await pool.connect();
+            const results = await client.query('SELECT * FROM "public"."users" WHERE email = $1', [email]);
             client.end();
-            return results;
-        } catch (err) {
-            client.end();
-            console.error(err.message);
+            return results.rows[0];
+        } catch (error) {
+            SuperLogger.log(`Error checking existing user: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
         }
-    };
+    }
 
     async validUser(username, password) {
-
-        const client = await pool.connect();
-        let results = null;
-
         try {
-            results = await client.query('SELECT * FROM "public"."users" WHERE username = $1 AND password = $2;', [username, password]);
-            results = results.rows[0];
+            const client = await pool.connect();
+            const results = await client.query('SELECT * FROM "public"."users" WHERE username = $1 AND password = $2;', [username, password]);
             client.end();
-            return results;
-        } catch (err) {
-            client.end();
-            console.error(err.message);
+            return results.rows[0];
+        } catch (error) {
+            SuperLogger.log(`Error validating user: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
         }
-    };
+    }
 
     async getUser(userId) {
-
-        const client = await pool.connect();
-        let results = null;
-
         try {
-            results = await client.query('SELECT * FROM "public"."users" WHERE id = $1;', [userId]);
-            results = results.rows[0];
+            const client = await pool.connect();
+            const results = await client.query('SELECT * FROM "public"."users" WHERE id = $1;', [userId]);
             client.end();
-            return results;
-        } catch (err) {
-            console.error(err.message);
+            return results.rows[0];
+        } catch (error) {
+            SuperLogger.log(`Error getting user: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
         }
-    };
+    }
 
     async editUser(username, id) {
-
-        const client = await pool.connect();
-        let results = null;
-
         try {
-            results = await client.query('UPDATE "public"."users" SET "username" = $1 WHERE id = $2 RETURNING *;', [username, id]);
-            results = results.rows[0];
+            const client = await pool.connect();
+            const results = await client.query('UPDATE "public"."users" SET "username" = $1 WHERE id = $2 RETURNING *;', [username, id]);
             client.end();
-            return results;
-        } catch (err) {
-            client.end();
-            console.error(err.message);
+            return results.rows[0];
+        } catch (error) {
+            SuperLogger.log(`Error editing user: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
         }
-    };
+    }
 
     async eraseUser(id) {
-
-        const client = await pool.connect();
-        let results = null;
-
         try {
-            results = await client.query('DELETE FROM "public"."users" WHERE id = $1;', [id]);
-            results = results.rows[0];
+            const client = await pool.connect();
+            const results = await client.query('DELETE FROM "public"."users" WHERE id = $1;', [id]);
             client.end();
-            return results;
-        } catch (err) {
-            client.end();
-            console.error(err.message);
+            return results.rows[0];
+        } catch (error) {
+            SuperLogger.log(`Error erasing user: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
         }
-    };
-
+    }
 
     // --- List queries ---
 
     async makeList(list, userId) {
-
-        // Connect to database
-        const client = await pool.connect();
-        let results = null;
-
         try {
-            results = await client.query('INSERT INTO "public"."lists"("listTitle", "userId") VALUES($1, $2);', [list, userId]);
-            results = results.rows[0]
+            const client = await pool.connect();
+            const results = await client.query('INSERT INTO "public"."lists"("listTitle", "userId") VALUES($1, $2);', [list, userId]);
             client.end();
-            return results;
-        } catch (err) {
-            client.end();
-            results = err;
+            return results.rows[0];
+        } catch (error) {
+            SuperLogger.log(`Error making list: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
         }
-    };
+    }
 
     async getAllLists(userId) {
-
-        const client = await pool.connect();
-        let results = null;
-
         try {
-            results = await client.query('SELECT * FROM "public"."lists" WHERE "userId" = $1;', [userId]);
-            results = results.rows;
+            const client = await pool.connect();
+            const results = await client.query('SELECT * FROM "public"."lists" WHERE "userId" = $1;', [userId]);
             client.end();
-            return results;
-        } catch (err) {
-            client.end();
-            console.error(err.message);
+            return results.rows;
+        } catch (error) {
+            SuperLogger.log(`Error getting all lists: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
         }
-    };
+    }
 
     async getList(id) {
-
-        const client = await pool.connect();
-        let results = null;
-
         try {
-            results = await client.query('SELECT * FROM "public"."lists" WHERE id = $1;', [id]);
-            results = results.rows[0];
+            const client = await pool.connect();
+            const results = await client.query('SELECT * FROM "public"."lists" WHERE id = $1;', [id]);
             client.end();
-            return results;
-        } catch (err) {
-            client.end();
-            console.error(err.message);
+            return results.rows[0];
+        } catch (error) {
+            SuperLogger.log(`Error getting list: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
         }
-    };
+    }
 
     async changeList(list, listId) {
-
-        const client = await pool.connect();
-        let results = null;
-
         try {
-            results = await client.query('UPDATE "public"."lists" SET "listTitle" = $1 WHERE id = $2 RETURNING *;', [list, listId]);
-            results = results.rows[0];
+            const client = await pool.connect();
+            const results = await client.query('UPDATE "public"."lists" SET "listTitle" = $1 WHERE id = $2 RETURNING *;', [list, listId]);
             client.end();
-            return results;
-        } catch (err) {
-            client.end();
-            console.error(err.message);
+            return results.rows[0];
+        } catch (error) {
+            SuperLogger.log(`Error changing list: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
         }
-    };
+    }
 
     async eraseList(id) {
-
-        const client = await pool.connect();
-        let results = null;
-
         try {
-            results = await client.query('DELETE FROM "public"."lists" WHERE id = $1;', [id]);
-            console.log("deleted list")
-            results = results.rows[0];
+            const client = await pool.connect();
+            const results = await client.query('DELETE FROM "public"."lists" WHERE id = $1;', [id]);
             client.end();
-            return results;
-        } catch (err) {
-            client.end();
-            console.error(err.message);
+            return results.rows[0];
+        } catch (error) {
+            SuperLogger.log(`Error erasing list: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
         }
-    };
+    }
 
     // --- Task queries ---
 
     async makeTask(task, listId, userId) {
-
-        // Connect to database
-        const client = await pool.connect();
-        let results = null;
-
         try {
-            results = await client.query('INSERT INTO "public"."tasks"("task", "listId", "userId") VALUES($1, $2, $3) RETURNING *;', [task, listId, userId]);
-            results = results.rows[0];
+            const client = await pool.connect();
+            const results = await client.query('INSERT INTO "public"."tasks"("task", "listId", "userId") VALUES($1, $2, $3) RETURNING *;', [task, listId, userId]);
             client.end();
-            return results;
-        } catch (err) {
-            client.end();
-            console.error(err.message);
+            return results.rows[0];
+        } catch (error) {
+            SuperLogger.log(`Error making task: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
         }
-    };
+    }
 
-    // Get all tasks from database
     async getAllTasks(userId) {
-
-        const client = await pool.connect();
-        let results = null;
         try {
-            results = await client.query('SELECT * FROM "public"."tasks" WHERE "userId" = $1;', [userId]);
-            results = results.rows;
+            const client = await pool.connect();
+            const results = await client.query('SELECT * FROM "public"."tasks" WHERE "userId" = $1;', [userId]);
             client.end();
-            return results;
-        } catch (err) {
-            client.end();
-            console.error(err.message);
+            return results.rows;
+        } catch (error) {
+            SuperLogger.log(`Error getting all tasks: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
         }
-    };
+    }
 
     async getTask(id) {
-
-        const client = await pool.connect();
-        let results = null;
-
         try {
-            results = await client.query('SELECT * FROM "public"."tasks" WHERE id = $1;', [id]);
-            results = results.rows[0];
+            const client = await pool.connect();
+            const results = await client.query('SELECT * FROM "public"."tasks" WHERE id = $1;', [id]);
             client.end();
-            return results;
-        } catch (err) {
-            client.end();
-            console.error(err.message);
+            return results.rows[0];
+        } catch (error) {
+            SuperLogger.log(`Error getting task: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
         }
-    };
+    }
 
     async getTasksByList(listId) {
-
-        const client = await pool.connect();
-        let results = null;
-
         try {
-            results = await client.query('SELECT * FROM "public"."tasks" WHERE "listId" = $1;', [listId]);
-            results = results.rows;
+            const client = await pool.connect();
+            const results = await client.query('SELECT * FROM "public"."tasks" WHERE "listId" = $1;', [listId]);
             client.end();
-            return results;
-        } catch (err) {
-            client.end();
-            console.error(err.message);
+            return results.rows;
+        } catch (error) {
+            SuperLogger.log(`Error getting tasks by list: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
         }
-    };
+    }
 
     async changeTask(task, id) {
-
-        const client = await pool.connect();
-        let results = null;
-
         try {
-            results = await client.query('UPDATE "public"."tasks" SET "task" = $1 WHERE id = $2 RETURNING *;', [task, id]);
-            results = results.rows[0];
+            const client = await pool.connect();
+            const results = await client.query('UPDATE "public"."tasks" SET "task" = $1 WHERE id = $2 RETURNING *;', [task, id]);
             client.end();
-            return results;
-        } catch (err) {
-            client.end();
-            console.error(err.message);
+            return results.rows[0];
+        } catch (error) {
+            SuperLogger.log(`Error changing task: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
         }
-
-    };
+    }
 
     async eraseTask(id) {
-
-        const client = await pool.connect();
-        let results = null;
-
         try {
-            results = await client.query('DELETE FROM "public"."tasks" WHERE id = $1;', [id]);
-            console.log("deleted task")
-            results = results.rows[0];
+            const client = await pool.connect();
+            const results = await client.query('DELETE FROM "public"."tasks" WHERE id = $1;', [id]);
             client.end();
-            return results;
-        } catch (err) {
-            client.end();
-            console.error(err.message);
+            return results.rows[0];
+        } catch (error) {
+            SuperLogger.log(`Error erasing task: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
         }
-    };
+    }
 
     async deleteTasksByList(listId) {
-
-        const client = await pool.connect();
-        let results = null;
-
         try {
-            results = await client.query('DELETE FROM "public"."tasks" WHERE "listId" = $1 RETURNING *;', [listId]);
-            results = results.rows;
+            const client = await pool.connect();
+            const results = await client.query('DELETE FROM "public"."tasks" WHERE "listId" = $1 RETURNING *;', [listId]);
             client.end();
-            return results;
-        } catch (err) {
-            client.end();
-            console.error(err.message);
+            return results.rows;
+        } catch (error) {
+            SuperLogger.log(`Error deleting tasks by list: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
         }
-
-    };
+    }
 
     async completeTask(completed, id) {
-
-        const client = await pool.connect();
-        let results = null;
-
         try {
-            results = await client.query('UPDATE "public"."tasks" SET "completed" = $1 WHERE id = $2 RETURNING *;', [completed, id]);
-            results = results.rows[0];
+            const client = await pool.connect();
+            const results = await client.query('UPDATE "public"."tasks" SET "completed" = $1 WHERE id = $2 RETURNING *;', [completed, id]);
             client.end();
-            return results;
-        } catch (err) {
-            client.end();
-            console.error(err.message);
+            return results.rows[0];
+        } catch (error) {
+            SuperLogger.log(`Error completing task: ${error.message}`, SuperLogger.LOGGING_LEVELS.CRITICAL);
         }
     }
 };
-
-
-
-
 
 export default new DataHandler();

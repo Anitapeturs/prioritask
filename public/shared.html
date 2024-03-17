@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap">
+    <link rel="stylesheet" href="style.css">
+    <title>Shared List</title>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.mjs')
+                    .then(registration => {
+                        console.log('Service Worker registered:', registration);
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <h1  id="listName"></h1>
+    <div id="list-container"></div>
+
+    <script>
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const listId = parseInt(urlParams.get('listId'));
+        const listTitle = urlParams.get('listTitle');
+        const list = document.getElementById('list-container');
+        const listName = document.getElementById('listName');
+
+        listName.innerHTML = listTitle;
+
+        console.log(listTitle)
+
+        fetchList(listId)
+
+        // FETCH LIST AND ITS TASKS 
+        function fetchList(listId) {
+
+            fetch(`https://prioritask.onrender.com/task/list/${listId}`)
+                .then((res) => res.json())
+                .then(tasks => {
+                  const taskContainer = document.createElement("div");
+                  taskContainer.className = "task-container";
+
+                  tasks.forEach(listTask => {
+                    const theTask = document.createElement("div");
+                    theTask.id = listTask.id;
+                    theTask.className = "task";
+                    theTask.textContent = listTask.task;
+                    theTask.style.cursor = "pointer";
+
+                    const deleteTask = document.createElement("button");
+                    deleteTask.id = parseInt(listTask.id);
+                    deleteTask.className = "deleteTask";
+                    deleteTask.innerHTML = `<i class="fa fa-trash-o" aria-hidden="true" title="Delete Task"></i>`;
+                    deleteTask.style.cursor = "pointer";
+
+                    const checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.className = "checkbox";
+                    checkbox.style.cursor = "pointer";
+                    checkbox.checked = listTask.completed;
+
+                    checkbox.addEventListener('change', async () => {
+                      const url = `https://prioritask.onrender.com/task/completed/${listTask.id}`;
+                      const config = {
+                        method: 'PUT',
+                        headers: {
+                          'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ completed: checkbox.checked })
+                      };
+
+                      try {
+                        const response = await fetch(url, config);
+                        if (!response.ok) {
+                          console.error('Failed to update task:', response.status);
+                        }
+                      } catch (error) {
+                        console.error('Error updating task:', error);
+                      }
+                    });
+
+                    taskContainer.appendChild(checkbox);
+                    taskContainer.appendChild(deleteTask);
+                    taskContainer.appendChild(theTask);
+
+                    // EDIT TASK ONCLICK
+                    theTask.addEventListener('click', (evt) => {
+                      const taskToEdit = evt.target.closest('.task');
+                      if (taskToEdit) {
+                        theTask.innerHTML = `<input id="taskInput" type="text" value="${theTask.textContent}" /> <button id="doneTask"'>&#10003;</button>`;
+                        const input = document.getElementById("taskInput");
+                        const done = document.getElementById("doneTask");
+
+                        input.focus();
+
+                        done.addEventListener('click', async (evt) => {
+                          const updatedTask = input.value;
+                          const taskId = taskToEdit.getAttribute('id');
+                          const url = `https://prioritask.onrender.com/task/${taskId}`;
+
+                          const config = {
+                            method: 'PUT',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ task: updatedTask })
+                          };
+
+                          try {
+                            const response = await fetch(url, config);
+                            if (response.ok) {
+                              theTask.innerHTML = updatedTask;
+                            }
+                          } catch (error) {
+                            console.error('Could not delete task:', error);
+                          }
+                        });
+                      }
+                    });
+
+                    // DELETE TASK ONCLICK
+                    deleteTask.addEventListener('click', async () => {
+                      const taskId = deleteTask.id;
+                      const url = `https://prioritask.onrender.com/task/${taskId}`;
+
+                      try {
+                        const response = await fetch(url, deleteConfig);
+                        if (response.ok) {
+                          window.location.reload();
+                        }
+                      } catch (error) {
+                        console.error('Could not delete task:', error);
+                      }
+                    });
+                  });
+
+                  list.append(taskContainer);
+                })
+                }
+                
+
+        
+
+    </script>
+</body>
+
+</html>
