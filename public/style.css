@@ -197,13 +197,13 @@ h1 {
 #user{
     position: absolute;
     top:-21px;
-    right: 5px;
+    left: 5px;
     color: rgb(218, 149, 119); 
 }
 
 .logout{
     position: absolute;
-    top:20px;
+    bottom:20px;
     left:20px;
     background: rgb(218, 149, 119); 
     color: white; 

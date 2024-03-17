@@ -1,4 +1,4 @@
-const prioriCache = 'prioritask-cache-v2';
+const prioriCache = 'prioritask-cache-v3';
 
 const urlsToCache = [
   '/startPage.html',
@@ -6,7 +6,6 @@ const urlsToCache = [
   '/loginUser.html',
   '/userSettings.html',
   '/style.css',
-  '/service-worker.mjs',
 ];
 
 self.addEventListener('install', event => {
