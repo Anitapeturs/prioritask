@@ -1,8 +1,8 @@
 import express from "express";
 import TaskController from "../controllers/taskControl.mjs";
 import { HTTPCodes } from "../modules/httpConstants.mjs";
-import SuperLogger from "../modules/superLogger.mjs";
-import path from "path"; // Import path module for resolving file paths
+import SuperLogger from "../modules/SuperLogger.mjs";
+import path from "path"; 
 
 const TASKS = express.Router();
 const taskController = new TaskController();

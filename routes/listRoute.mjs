@@ -1,7 +1,7 @@
 import express from "express";
 import ListController from "../controllers/listControl.mjs";
 import { HTTPCodes } from "../modules/httpConstants.mjs";
-import SuperLogger from "../modules/superLogger.mjs";
+import SuperLogger from "../modules/SuperLogger.mjs";
 
 const LISTS = express.Router();
 const listController = new ListController();

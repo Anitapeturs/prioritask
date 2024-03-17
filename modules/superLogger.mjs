@@ -12,8 +12,6 @@ COLORS[HTTPMethods.GET] = Chalk.green;
 COLORS[HTTPMethods.DELETE] = Chalk.red;
 COLORS.Default = Chalk.gray;
 
-// Convenience function
-// https://en.wikipedia.org/wiki/Convenience_function
 const colorize = (method) => {
     if (method in COLORS) {
         return COLORS[method](method);
