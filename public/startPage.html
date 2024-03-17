@@ -100,12 +100,11 @@
       const deleteConfig = {
         method: 'DELETE',
         headers: {
-          'content-type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'content-type': 'application/json'
         }
       };
 
-
+      document.addEventListener('DOMContentLoaded', function () {
       // FETCH CALENDAR DATA
       fetch('https://prioritask.onrender.com/calendar')
         .then(res => res.json())
@@ -131,7 +130,6 @@
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ listTitle: username, userId: userId })
               };
@@ -237,8 +235,7 @@
                       const config = {
                         method: 'PUT',
                         headers: {
-                          'Content-Type': 'application/json',
-                          'Authorization': `Bearer ${token}`
+                          'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({ completed: checkbox.checked })
                       };
@@ -276,8 +273,7 @@
                           const config = {
                             method: 'PUT',
                             headers: {
-                              'Content-Type': 'application/json',
-                              'Authorization': `Bearer ${token}`
+                              'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({ task: updatedTask })
                           };
@@ -344,8 +340,7 @@
                 const config = {
                   method: 'PUT',
                   headers: {
-                    'content-type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'content-type': 'application/json'
                   },
                   body: JSON.stringify({ listTitle: updatedList })
                 };
@@ -370,8 +365,7 @@
                   const config = {
                     method: 'POST',
                     headers: {
-                      'content-type': 'application/json',
-                      'Authorization': `Bearer ${token}`
+                      'content-type': 'application/json'
                     },
                     body: JSON.stringify({ task: createdTask, listId: listId, userId: userId })
                   };
@@ -404,8 +398,7 @@
         const config = {
           method: 'POST',
           headers: {
-            'content-type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'content-type': 'application/json'
           },
           body: JSON.stringify({ listTitle: `${username}'s PrioriTask`, userId: userId })
         };
@@ -433,7 +426,7 @@
         localStorage.removeItem("token");
         window.location.href = 'loginUser.html';
       });
- 
+    })
   </script>
 </body>
 
